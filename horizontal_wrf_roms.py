@@ -10,16 +10,16 @@ Last modified:  13 August 2019
 Version:        3.4
 Python:         3.7.1
 
-Creates horizontal plots from ROMS (his) and WRF-ARW outputs, displaying:
-    - Temperature (Contourf; °C);
-    - Salinity (Contourf; PSU);
-    - Latent Heat Flux (Contourf; W/m-2);
+Create horizontal plots from ROMS (his) and WRF-ARW outputs, displaying:
+    - Sea surface temperature (Contourf; °C);
+    - Sea surface salinity (Contourf; PSU);
+    - Latent heat flux (Contourf; W/m-2);
     - 200 and 1000 meters bathymetry (Contour; m);
     - Wind vectors at 10 m (Vector; m/s);
     - Ocean current at surface (Vector; m/s);
-    - Sea Level Pressure (Contourf; hPa);
-    - Accumulated Total Precipitation (Contourf; mm);
-    - Sea Ice Thickness (Contourf; %).
+    - Sea level pressure (Contourf; hPa);
+    - Accumulated total precipitation (Contourf; mm);
+    - Sea ice thickness (Contourf; %).
 
 bbox = [lon_min,lon_max,lat_min,lat_max]
 """
@@ -87,7 +87,7 @@ if project=='1':
     plot_currents = True
     plot_wind     = True
     plot_slp      = True
-    create_video  = False
+    create_video  = True
     ppt_fig       = False # If True, it will generate a figure with transparent background.
     nc_roms       = netCDF4.Dataset(roms_file)
     nc_wrf        = netCDF4.Dataset(wrf_file)
@@ -151,9 +151,9 @@ for i in range(0,ntimes,3):
         lats_wrf, lons_wrf = latlon_coords(uvmet10)
     if plot_slp==True:
         slp         = getvar(nc_wrf, "slp", i, units="hPa")
-        slp         = smooth2d(slp,30)
+        slp         = smooth2d(slp,120)
         lats_wrf, lons_wrf = latlon_coords(slp)
-        clevs_slp   = np.arange(900,1030,3)
+        clevs_slp   = np.arange(900,1030,1)
     if plot_currents==True:
         lon_rho     = nc_roms.variables['lon_rho'][:]
         lat_rho     = nc_roms.variables['lat_rho'][:]
@@ -177,8 +177,8 @@ for i in range(0,ntimes,3):
             lon_var     = lon_rho[j0:j1, i0:i1]
             lat_var     = lat_rho[j0:j1, i0:i1]
             var         = nc_roms.variables['temp'][i, zlev,  j0:j1, i0:i1]
-            clevs       = np.arange(18,26.1,0.01)
-            ticks       = np.arange(min(clevs),max(clevs),2)  
+            clevs       = np.arange(19,25.1,0.01)
+            ticks       = np.arange(min(clevs),max(clevs),1)  
             cmap        = cmocean.cm.thermal   
         if project=='2' and contourf_var=='2':
             lon_rho     = nc_roms.variables['lon_rho'][:]
@@ -327,7 +327,7 @@ for i in range(0,ntimes,3):
     # 3.7. Plot the desired countour variable and add some plot resources.
     if plot_slp==True:
         x_slp, y_slp = m(to_np(lons_wrf), to_np(lats_wrf))
-        Ct_slp       = ax.contour(gaussian_filter(x_slp,6),gaussian_filter(y_slp,6),gaussian_filter(to_np(slp),6),clevs_slp,colors='white',latlon=True,linewidths=1,linestyles='solid')
+        Ct_slp       = ax.contour(gaussian_filter(x_slp,10),gaussian_filter(y_slp,10),gaussian_filter(to_np(slp),10),clevs_slp,colors='white',latlon=True,linewidths=1,linestyles='solid')
         clbls_slp    = plt.clabel(Ct_slp,fmt='%i',inline=1, fontsize=9)
 
     if plot_var==True:
