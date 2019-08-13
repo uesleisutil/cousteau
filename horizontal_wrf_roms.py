@@ -79,7 +79,7 @@ if project=='1':
     if exp=='11':
         roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_100/roms.nc'
         wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_100/wrf.nc' 
-    bbox          = [-52.5, -45.5, -30.5., -25.5]
+    bbox          = [-52.5, -45.5, -30.5, -25.5]
     initloop      = 144
     zlev          = -1 # Last sigma layer corresponds to surface.
     plot_var      = True 
@@ -87,7 +87,7 @@ if project=='1':
     plot_currents = True
     plot_wind     = True
     plot_slp      = True
-    create_video  = True
+    create_video  = False
     ppt_fig       = False # If True, it will generate a figure with transparent background.
     nc_roms       = netCDF4.Dataset(roms_file)
     nc_wrf        = netCDF4.Dataset(wrf_file)
@@ -179,7 +179,7 @@ for i in range(0,ntimes,3):
             var         = nc_roms.variables['temp'][i, zlev,  j0:j1, i0:i1]
             clevs       = np.arange(18,26.1,0.01)
             ticks       = np.arange(min(clevs),max(clevs),2)  
-            cmap        = cmocean.cm.balance    # matplotlib.pyplot.jet() 
+            cmap        = cmocean.cm.thermal   
         if project=='2' and contourf_var=='2':
             lon_rho     = nc_roms.variables['lon_rho'][:]
             lat_rho     = nc_roms.variables['lat_rho'][:]
@@ -251,18 +251,18 @@ for i in range(0,ntimes,3):
             lat_1=-45.,lat_2=-65,lat_0=-65,lon_0=-35.)     
     fig  = plt.figure(1,figsize=(10,8))
     if project=='1' or project=='2':
-        plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=11,size=6)
-        plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=19,size=6)
+        plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=18,size=10)
+        plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=33,size=10)
     ax   = fig.add_subplot(111)
     if project=='1' or project=='2':
-        plt.title(timestr, fontsize=6)
+        plt.title(timestr, fontsize=10)
     if project=='3':
         plt.title(timestr, fontsize=9, pad=25)
         
     # 3.3. Add coastline, continents and lat/lon.
     if project=='1':
-        m.drawparallels(np.arange(-90.,120.,1.), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
-        m.drawmeridians(np.arange(-180.,180.,2.), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
+        m.drawparallels(np.arange(-90.,120.,1.), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
+        m.drawmeridians(np.arange(-180.,180.,2.), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
     if project=='2':
         m.drawparallels(np.arange(-90.,120.,5), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
         m.drawmeridians(np.arange(-180.,180.,5), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
@@ -281,8 +281,8 @@ for i in range(0,ntimes,3):
     if plot_currents==True:
         x_rho, y_rho = m(lon,lat)
         if project=='1':
-            nsub  = 22
-            scale = 0.045
+            nsub  = 15
+            scale = 0.065
         if project=='2':
             nsub  = 20
             scale = 0.03
@@ -291,7 +291,7 @@ for i in range(0,ntimes,3):
             scale = 0.07          
         C = ax.quiver(x_rho[::nsub,::nsub],y_rho[::nsub,::nsub],u[::nsub,::nsub],v[::nsub,::nsub],alpha=0.5,scale=1/scale, zorder=1e35, width=0.0025,color='black',pivot='middle')
         if project=='1':
-            qk = ax.quiverkey(C, .16, -0.125, 0.5, ' Sea Surface Current\n 0.5 m.s⁻¹ ', coordinates='axes',color='black',labelsep=0.05, labelcolor='black',alpha=0.4,fontproperties={'size': '5'})
+            qk = ax.quiverkey(C, .215, -0.15, 0.5, ' Sea Surface Current\n 0.5 m.s⁻¹ ', coordinates='axes',color='black',labelsep=0.05, labelcolor='black',alpha=0.4,fontproperties={'size': '9'})
         if project=='2':
             qk = ax.quiverkey(C, .22, -0.25, 0.5, ' Sea Surface Current\n 0.5 m.s⁻¹ ', coordinates='axes',color='black',labelsep=0.05, labelcolor='black',alpha=0.4,fontproperties={'size': '5'})
         if project=='3':
@@ -300,7 +300,7 @@ for i in range(0,ntimes,3):
     if plot_wind==True:
         x, y    = m(to_np(lons_wrf), to_np(lats_wrf))
         if project=='1':
-            spacing = 22
+            spacing = 35
             scale   = 0.03
         if project=='2':
             spacing = 40
@@ -310,7 +310,7 @@ for i in range(0,ntimes,3):
             scale   = 0.02
         W = ax.quiver(x[::spacing,::spacing], y[::spacing,::spacing], to_np(uvmet10[0,::spacing, ::spacing]),to_np(uvmet10[1,::spacing, ::spacing]),pivot='middle',scale=8/scale, zorder=1e35, width=0.005,color='gray',headlength=3, headaxislength=2.8 )
         if project=='1':
-            wk = ax.quiverkey(W, 0.81, -0.125, 10, ' Wind Vector at 10 m\n 10 m.s⁻¹ ', coordinates='axes',color='#444444',labelsep=0.05, labelcolor='black',fontproperties={'size': '5'})
+            wk = ax.quiverkey(W, 0.76, -0.15, 10, ' Wind Vector at 10 m\n 10 m.s⁻¹ ', coordinates='axes',color='#444444',labelsep=0.05, labelcolor='black',fontproperties={'size': '9'})
         if project=='2':
             wk = ax.quiverkey(W, .75, -.25, 10, ' Wind Vector at 10 m\n 10 m.s⁻¹ ', coordinates='axes',color='#444444',labelsep=0.05, labelcolor='black',fontproperties={'size': '5'})
         if project=='3':
@@ -321,27 +321,27 @@ for i in range(0,ntimes,3):
         bathy_levels     = [-1000,-200]
         bLON,bLAT,BAT    = download_bathy(lnd=bbox[0],lnu=-39,ltd=bbox[2],ltu=bbox[3])
         Ct               = m.contour(gaussian_filter(bLON,3),gaussian_filter(bLAT,3),gaussian_filter(BAT,3),bathy_levels,colors='black',latlon=True,linewidths=0.3,linestyles='solid')
-        manual_locations = [(554743,64375), (517235,81424)]
-        clbls            = plt.clabel(Ct,fmt='%i', fontsize=4,manual=manual_locations)
+        manual_locations = [(470976,117920), (418411,117920)]
+        clbls            = plt.clabel(Ct,fmt='%i', fontsize=9,manual=manual_locations)
 
     # 3.7. Plot the desired countour variable and add some plot resources.
     if plot_slp==True:
         x_slp, y_slp = m(to_np(lons_wrf), to_np(lats_wrf))
-        Ct_slp       = ax.contour(gaussian_filter(x_slp,0),gaussian_filter(y_slp,0),gaussian_filter(to_np(slp),0),clevs_slp,colors='white',latlon=True,linewidths=0.9,linestyles='solid')
-        clbls_slp    = plt.clabel(Ct_slp,fmt='%i',inline=1, fontsize=5)
+        Ct_slp       = ax.contour(gaussian_filter(x_slp,6),gaussian_filter(y_slp,6),gaussian_filter(to_np(slp),6),clevs_slp,colors='white',latlon=True,linewidths=1,linestyles='solid')
+        clbls_slp    = plt.clabel(Ct_slp,fmt='%i',inline=1, fontsize=9)
 
     if plot_var==True:
         if contourf_var=='1':
             h1  = m.contourf(lon_var, lat_var, var, clevs,latlon=True,cmap=cmap,extend="both")  
             if project=='1':
-                cax = fig.add_axes([0.37, 0.03, 0.27, 0.025])   
+                cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])   
             if project=='2':
                 cax = fig.add_axes([0.37, 0.196, 0.27, 0.025])       
             if project=='3':
                 cax = fig.add_axes([0.37, 0.08, 0.27, 0.025])                  
             cb  = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
-            cb.set_label(r'Sea Surface Temperature [$^\circ\!$C]', fontsize=7, color='0.2',labelpad=-0.5)
-            cb.ax.tick_params(labelsize=7, length=2, color='0.2', labelcolor='0.2',direction='in') 
+            cb.set_label(r'Sea Surface Temperature [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=0)
+            cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
             cb.set_ticks(ticks)
 
         if contourf_var=='2':
