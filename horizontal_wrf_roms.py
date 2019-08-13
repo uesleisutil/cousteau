@@ -6,8 +6,8 @@ File name:      roms_wrf_horizontal.py
 Author:         Ueslei Adriano Sutil
 Email:          uesleisutil1@gmail.com
 Created:        27 February 2019
-Last modified:  07 August 2019
-Version:        3.3
+Last modified:  13 August 2019
+Version:        3.4
 Python:         3.7.1
 
 Creates horizontal plots from ROMS (his) and WRF-ARW outputs, displaying:
@@ -79,15 +79,16 @@ if project=='1':
     if exp=='11':
         roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_100/roms.nc'
         wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_100/wrf.nc' 
-    bbox          = [-56, -42, -34., -22.2]
+    bbox          = [-52.5, -45.5, -30.5., -25.5]
     initloop      = 144
     zlev          = -1 # Last sigma layer corresponds to surface.
     plot_var      = True 
-    plot_bathy    = False
-    plot_currents = False
-    plot_wind     = False
-    plot_slp      = False
-    create_video  = False
+    plot_bathy    = True
+    plot_currents = True
+    plot_wind     = True
+    plot_slp      = True
+    create_video  = True
+    ppt_fig       = False # If True, it will generate a figure with transparent background.
     nc_roms       = netCDF4.Dataset(roms_file)
     nc_wrf        = netCDF4.Dataset(wrf_file)
     atemp         = nc_roms.variables['temp']
@@ -104,6 +105,7 @@ if project=='2':
     plot_wind     = False
     plot_slp      = False
     create_video  = True
+    ppt_fig       = False
     nc_roms       = netCDF4.Dataset(roms_file)
     nc_wrf        = netCDF4.Dataset(wrf_file)
     atemp         = nc_roms.variables['temp']
@@ -120,6 +122,7 @@ if project=='3':
     plot_wind     = False
     plot_slp      = False
     create_video  = True
+    ppt_fig       = False
     nc_roms       = netCDF4.Dataset(roms_file)
     nc_wrf        = netCDF4.Dataset(wrf_file)
     atemp         = nc_roms.variables['temp']
@@ -134,7 +137,7 @@ if project =='3':
 
 # 3. Start looping through time
 bar = IncrementalBar('', max=ntimes)
-for i in range(0,ntimes):
+for i in range(0,ntimes,3):
 #for i in range(0,1):
     # 3.1. Get variables and their resources.
     #tvar        = nc_roms.variables['ocean_time']
@@ -264,8 +267,8 @@ for i in range(0,ntimes):
         m.drawparallels(np.arange(-90.,120.,5), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
         m.drawmeridians(np.arange(-180.,180.,5), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
     if project=='3':
-        m.drawmeridians(np.arange(0,360,10),labels=[1,1,1,0],linewidth=0.1,fontsize=9,labelstyle="N/S")
-        m.drawparallels(np.arange(-90,90,5),linewidth=0.1,fontsize=9,labelstyle="N/S")
+        m.drawmeridians(np.arange(0,360,10),labels=[1,1,1,0],linewidth=0.1,fontsize=8.75,labelstyle="N/S")
+        m.drawparallels(np.arange(-90,90,5),linewidth=0.1,fontsize=8.75,labelstyle="N/S")
     if contourf_var=='3':
         m.drawcountries(color = '#000000')
         m.drawcoastlines(color = '#000000')
@@ -364,10 +367,10 @@ for i in range(0,ntimes):
             cb.set_ticks(ticks)
         if contourf_var=='5':
             h1  = m.contourf(lon_var, lat_var, var, clevs,latlon=True,cmap=cmap,extend="both")  
-            cax = fig.add_axes([0.37, 0.11, 0.27, 0.025]) 
+            cax = fig.add_axes([0.37, 0.1205, 0.27, 0.025]) 
             cb  = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
-            cb.set_label(r'Fractional sea ice cover [%]', fontsize=12, color='0.2',labelpad=-0.5)
-            cb.ax.tick_params(labelsize=12, length=2, color='0.2', labelcolor='0.2',direction='in') 
+            cb.set_label(r'Fractional sea ice cover [%]', fontsize=9, color='0.2',labelpad=-0.5)
+            cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
             cb.set_ticks(ticks)  
 
     # 3.8. Save figures.
@@ -376,35 +379,50 @@ for i in range(0,ntimes):
             os.makedirs("sst")
         except FileExistsError:
             pass
-        plt.savefig('./sst/temp_{0:03d}.png'.format(i), transparent=True, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        if ppt_fig==True:
+            plt.savefig('./sst/temp_{0:03d}.png'.format(i), transparent=True, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        if ppt_fig==False:
+            plt.savefig('./sst/temp_{0:03d}.png'.format(i), transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)        
         plt.clf()
     elif contourf_var=='2':
         try:
             os.makedirs("sss")
         except FileExistsError:
             pass
-        plt.savefig('./sss/salt_{0:03d}.png'.format(i), transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        if ppt_fig==True:
+            plt.savefig('./sss/salt_{0:03d}.png'.format(i), transparent=True, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        if ppt_fig==False:
+            plt.savefig('./sss/salt_{0:03d}.png'.format(i), transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)            
         plt.clf()   
     elif contourf_var=='3':
         try:
             os.makedirs("precipitation")
         except FileExistsError:
-            pass        
-        plt.savefig('./precipitation/prec_{0:03d}.png'.format(i), transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+            pass
+        if ppt_fig==True:
+            plt.savefig('./precipitation/prec_{0:03d}.png'.format(i), transparent=True, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        if ppt_fig==False:
+            plt.savefig('./precipitation/prec_{0:03d}.png'.format(i), transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)           
         plt.clf()
     elif contourf_var=='4':
         try:
             os.makedirs("heat_fluxes")
         except FileExistsError:
             pass
-        plt.savefig('./heat_fluxes/fluxes_{0:03d}.png'.format(i), transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        if ppt_fig==True:
+            plt.savefig('./heat_fluxes/fluxes_{0:03d}.png'.format(i), transparent=True, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        if ppt_fig==False:
+            plt.savefig('./heat_fluxes/fluxes_{0:03d}.png'.format(i), transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)            
         plt.clf()
     elif contourf_var=='5':
         try:
             os.makedirs("ice")
         except FileExistsError:
             pass
-        plt.savefig('./ice/ice_{0:03d}.png'.format(i), transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        if ppt_fig==True:
+            plt.savefig('./ice/ice_{0:03d}.png'.format(i), transparent=True, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        if ppt_fig==False:
+            plt.savefig('./ice/ice_{0:03d}.png'.format(i), transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)          
         plt.clf()   
     bar.next()
 bar.finish()
