@@ -22,7 +22,7 @@ Compare:
            Sea Surface Temperature (°C) 
            Current Speed at surface (m.s⁻¹)
            
-Perhaps you will need to post-process de ROMS simulation to match with the databases.
+Post-process de ROMS simulation to match with the databases.
 What I do:
     - MUR and GLORYS (Daily data):
         ncks -v temp,u,v -d s_rho,49,49 roms_avg.nc roms_evaluation.nc
@@ -53,10 +53,10 @@ matplotlib.use("Agg")
 print(bg.da_cyan+'Which project? (1) SC_2008, (2) ATLEQ or (3) Antartic.'+bg.rs)
 project = input()
 if project =='1':
-    bbox                = [-58,-36,-33,-20]
+    bbox                = [-52.5, -45.5, -30.5, -25.5]
     lonbounds           = [-58,-32] 
     latbounds           = [-36,-20]
-    clevs_rmse_sst      = np.arange(0,4.01,0.01)
+    clevs_rmse_sst      = np.arange(0,3.51,0.01)
     ticks_rmse_sst      = np.array([0,0.5,1,1.5,2,2.5,3,3.5,4]) 
     clevs_mae_sst       = np.arange(-3,3.01,0.01)
     ticks_mae_sst       = np.array([-3,-2,-1,0,1,2,3]) 
@@ -66,8 +66,8 @@ if project =='1':
     clevs_mae_cur       = np.arange(-0.51,0.51,0.01)
     ticks_mae_cur       = np.array([0.5,-0.25,0,0.25,0.5]) 
 
-    roms_mur_glorys_dir = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ROMS/roms_daily.nc'
-    roms_oscar_dir      = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ROMS/roms_21_26_days_oscar.nc'
+    roms_mur_glorys_dir = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ROMS/roms_mur_glorys_eval.nc'
+    roms_oscar_dir      = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ROMS/roms_oscar_eval.nc'
     mur_dir             = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/MUR/mur.nc' 
     glorys_dir          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/Glorys/glorys.nc'  
     oscar_dir           = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/OSCAR/oscar.nc'  
@@ -205,18 +205,18 @@ if contourf_var=='1':
     # Create and plot map.
     m    = Basemap(projection='merc',llcrnrlat=bbox[2],urcrnrlat=bbox[3],llcrnrlon=bbox[0],urcrnrlon=bbox[1], lat_ts=10,resolution='i')
     fig  = plt.figure(1,figsize=(10,8))
-    plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=15,size=6)
-    plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=25,size=6)
+    plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=18,size=10)
+    plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=33,size=10)
     ax   = fig.add_subplot(111)
-    m.drawparallels(np.arange(-90.,120.,5.), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
-    m.drawmeridians(np.arange(-180.,180.,5.), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
+    m.drawparallels(np.arange(-90.,120.,1.), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
+    m.drawmeridians(np.arange(-180.,180.,1.), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
     m.drawcountries(color = '#ffffff',linewidth=0.5)
     m.drawcoastlines(color = '#ffffff',linewidth=0.5)
     m.fillcontinents(color = '#000000')
     if metric=='1':
         clevs = clevs_rmse_sst
         ticks = ticks_rmse_sst
-        cmap  = matplotlib.pyplot.jet()
+        cmap  = cmocean.cm.thermal #matplotlib.pyplot.jet()
     if metric=='2':
         clevs = clevs_mae_sst
         ticks = ticks_mae_sst 
@@ -231,13 +231,13 @@ if contourf_var=='1':
             h1    = m.contourf(lon_glorys, lat_glorys, val, clevs,latlon=True,cmap=cmap,extend="both") 
         if metric =='2':
             h1    = m.contourf(lon_glorys, lat_glorys, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both")        
-    cax   = fig.add_axes([0.37, 0.15, 0.27, 0.025])     
+    cax   = fig.add_axes([0.37, 0.025, 0.27, 0.025])     
     cb    = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
     if metric=='1':
-        cb.set_label(r'Sea Surface Temperature Root Mean Square Error [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.5)
+        cb.set_label(r'Sea Surface Temperature Root Mean Square Error [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=0)
     if metric=='2':
-        cb.set_label(r'Sea Surface Temperature Bias [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.5)
-    cb.ax.tick_params(labelsize=5, length=2, color='0.2', labelcolor='0.2',direction='in') 
+        cb.set_label(r'Sea Surface Temperature Bias [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=-0.5)
+    cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
     cb.set_ticks(ticks)
     try:
         os.makedirs("roms_evaluation")
@@ -337,7 +337,7 @@ if contourf_var=='2':
         v_roms2      = np.zeros([roms_loop,glorys_lat_len,glorys_lon_len])       
         orig_def     = pyresample.geometry.SwathDefinition(lons=lon_roms, lats=lat_roms)
         targ_def     = pyresample.geometry.SwathDefinition(lons=lon_glorys, lats=lat_glorys)
-        bar            = IncrementalBar('Processing Ocean Currents from ROMS', max=roms_loop)    
+        bar          = IncrementalBar('Processing Ocean Currents from ROMS', max=roms_loop)    
     for i in range(0,roms_loop):
         u_roms         = nc_roms.variables['u'][i,0,j0:j1,i0:i1]
         u_roms         = pyresample.kd_tree.resample_gauss(orig_def, u_roms, targ_def, radius_of_influence=500000, neighbours=20,sigmas=250000, fill_value=None)
@@ -376,18 +376,18 @@ if contourf_var=='2':
     # Create and plot map.
     m    = Basemap(projection='merc',llcrnrlat=bbox[2],urcrnrlat=bbox[3],llcrnrlon=bbox[0],urcrnrlon=bbox[1], lat_ts=30,resolution='i')
     fig  = plt.figure(1,figsize=(10,8))
-    plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=15,size=6)
-    plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=25,size=6)
+    plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=18,size=10)
+    plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=33,size=10)
     ax   = fig.add_subplot(111)
-    m.drawparallels(np.arange(-90.,120.,5.), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
-    m.drawmeridians(np.arange(-180.,180.,5.), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
+    m.drawparallels(np.arange(-90.,120.,1.), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
+    m.drawmeridians(np.arange(-180.,180.,1.), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
     m.drawcountries(color = '#ffffff',linewidth=0.5)
     m.drawcoastlines(color = '#ffffff',linewidth=0.5)
     m.fillcontinents(color = '#000000')
     if metric=='1':
         clevs = clevs_rmse_cur
         ticks = ticks_rmse_cur
-        cmap  = matplotlib.pyplot.jet()
+        cmap  =  cmocean.cm.thermal
     if metric=='2':
         clevs = clevs_mae_cur
         ticks = ticks_mae_cur
@@ -402,13 +402,13 @@ if contourf_var=='2':
             h1    = m.contourf(lon_glorys, lat_glorys, val, clevs,latlon=True,cmap=cmap,extend="both")   
         if metric == '2':
             h1    = m.contourf(lon_glorys, lat_glorys, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both")              
-    cax   = fig.add_axes([0.37, 0.15, 0.27, 0.025])     
+    cax   = fig.add_axes([0.37, 0.025, 0.27, 0.025])     
     cb    = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
     if metric=='1':
-        cb.set_label(r'Current at Surface Root Mean Square Error [m.s⁻¹]', fontsize=5, color='0.2',labelpad=-0.5)
+        cb.set_label(r'Surface Currents Root Mean Square Error [m.s⁻¹]', fontsize=10, color='0.2',labelpad=-0.5)
     if metric=='2':
-        cb.set_label(r'Current at Surface Bias [m.s⁻¹]', fontsize=5, color='0.2',labelpad=-0.5)
-    cb.ax.tick_params(labelsize=5, length=2, color='0.2', labelcolor='0.2',direction='in') 
+        cb.set_label(r'Current at Surface Bias [m.s⁻¹]', fontsize=10, color='0.2',labelpad=-0.5)
+    cb.ax.tick_params(labelsize=10, length=2, color='0.2', labelcolor='0.2',direction='in') 
     cb.set_ticks(ticks)
     try:
         os.makedirs("roms_evaluation")

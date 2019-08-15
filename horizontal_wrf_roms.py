@@ -7,37 +7,42 @@ Author:         Ueslei Adriano Sutil
 Email:          uesleisutil1@gmail.com
 Created:        27 February 2019
 Last modified:  13 August 2019
-Version:        3.4
+Version:        3.5
 Python:         3.7.1
 
 Create horizontal plots from ROMS (his) and WRF-ARW outputs, displaying:
     - Sea surface temperature (Contourf; °C);
     - Sea surface salinity (Contourf; PSU);
-    - Latent heat flux (Contourf; W/m-2);
+    - Latent heat flux (Contourf; W m-2);
     - 200 and 1000 meters bathymetry (Contour; m);
-    - Wind vectors at 10 m (Vector; m/s);
-    - Ocean current at surface (Vector; m/s);
+    - Wind vectors at 10 m (Vector; m s-1la
+    );
+    - Ocean current at surface (Vector; m s-1);
     - Sea level pressure (Contourf; hPa);
     - Accumulated total precipitation (Contourf; mm);
-    - Sea ice thickness (Contourf; %).
+    - Sea ice thickness (Contourf; %);
+    - Convective Avaliable Potential Energy (Contourf; J kg-1).
 
+CAPE = Defined as the accumulated negative buoyant energy from the parcel startin point to the 
+       level of free convection. The word "parcel" refers to a 500 meter deep parcel, with the
+       actual temperature and moisture averaged over that depth.
 bbox = [lon_min,lon_max,lat_min,lat_max]
 """
 
-import numpy                  as np
-import matplotlib.pyplot      as plt
-from   mpl_toolkits.basemap   import Basemap
+import numpy                 as     np
+import matplotlib.pyplot     as     plt
+from   mpl_toolkits.basemap  import Basemap
 import netCDF4
-from   roms_libs              import *
+from   roms_libs             import *
 import cmocean
-from   OceanLab.utils         import download_bathy
+from   OceanLab.utils        import download_bathy
 import os
-from   wrf                    import to_np, getvar, latlon_coords, smooth2d, extract_times
-from   scipy.ndimage.filters  import gaussian_filter
-from   sty                    import bg, rs
-from   datetime               import datetime
-import pandas                 as pd
-from   progress.bar import IncrementalBar
+from   wrf                   import to_np, getvar, latlon_coords, smooth2d, extract_times
+from   scipy.ndimage.filters import gaussian_filter
+from   sty                   import bg, rs
+from   datetime              import datetime
+import pandas                as     pd
+from   progress.bar          import IncrementalBar
 # 2. Customizations.
 
 print(bg.da_cyan+'Which project? (1) SC_2008, (2) ATLEQ or (3) Antartic.'+bg.rs)
@@ -136,8 +141,9 @@ if project =='3':
     contourf_var  = input() 
 
 # 3. Start looping through time
-bar = IncrementalBar('', max=ntimes)
-for i in range(0,ntimes,3):
+range_loop = [i for i in range(168,ntimes,1)]
+bar        = IncrementalBar(bg.da_cyan+'Creating figures:'+bg.rs, max=len(range_loop))
+for i in range_loop:
 #for i in range(0,1):
     # 3.1. Get variables and their resources.
     #tvar        = nc_roms.variables['ocean_time']
@@ -255,9 +261,9 @@ for i in range(0,ntimes,3):
         plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=33,size=10)
     ax   = fig.add_subplot(111)
     if project=='1' or project=='2':
-        plt.title(timestr, fontsize=10)
+        plt.title(timestr, fontsize=11)
     if project=='3':
-        plt.title(timestr, fontsize=9, pad=25)
+        plt.title(timestr, fontsize=10, pad=25)
         
     # 3.3. Add coastline, continents and lat/lon.
     if project=='1':

@@ -46,7 +46,7 @@ from progress.bar import IncrementalBar
 matplotlib.use("Agg")
 
 # Customizations.
-bbox                = [-58,-32,-33,-20]
+bbox                = [-52.5, -45.5, -30.5, -25.5]
 lonbounds           = [-58,-32] 
 latbounds           = [-33,-20]
 wrf_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf.nc'
@@ -130,7 +130,7 @@ if dataset == '1':
         lon_wrf     = lon_wrf[lonli:lonui]
         lat_wrf     = lat_wrf[latui:latli]
         lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = len(nc_wrf.variables['Times'][168:409])
+        wrf_loop    = len(nc_wrf.variables['Times'][:])
         wrf_lat_len = len(lat_wrf[:,0])
         wrf_lon_len = len(lon_wrf[0,:])
         orig_def    = pyresample.geometry.SwathDefinition(lons=lon_wrf, lats=lat_wrf)
@@ -465,11 +465,11 @@ if metric=='4':
 # Create and plot map.
 m    = Basemap(projection='merc',llcrnrlat=bbox[2],urcrnrlat=bbox[3],llcrnrlon=bbox[0],urcrnrlon=bbox[1], lat_ts=30,resolution='i')
 fig  = plt.figure(1,figsize=(10,8))
-plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=15,size=6)
-plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=25,size=6)
+plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=18,size=10)
+plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=33,size=10)
 ax   = fig.add_subplot(111)
-m.drawparallels(np.arange(-90.,120.,2.), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
-m.drawmeridians(np.arange(-180.,180.,3.), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=6)
+m.drawparallels(np.arange(-90.,120.,1), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
+m.drawmeridians(np.arange(-180.,180.,1), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
 m.drawcountries(color = '#000000',linewidth=0.5)
 m.drawcoastlines(color = '#000000',linewidth=0.5)
 
@@ -543,18 +543,18 @@ if dataset == '3':
     if metric=='1':
         cmap  = cmocean.cm.balance
         h1    = m.contourf(lon_mswep, lat_mswep, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0)) 
-cax   = fig.add_axes([0.37, 0.25, 0.27, 0.025])     
+cax   = fig.add_axes([0.37, 0.025, 0.27, 0.025])     
 cb    = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks,pad=-10.5)
 
 if metric=='1':
     if contourf_var=='1':
-        cb.set_label(r'Air Temperature at 2 meters Bias [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.2)
+        cb.set_label(r'Air Temperature at 2 meters Bias [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=0)
     if contourf_var=='2':
-        cb.set_label(r'Wind Speed at 10 meters Bias [m.s⁻¹]', fontsize=5, color='0.2',labelpad=-0.2)
+        cb.set_label(r'Wind Speed at 10 meters Bias [m.s⁻¹]', fontsize=9, color='0.2',labelpad=0)
     if contourf_var=='3':
-         cb.set_label(r'Sea Level Pressure Bias [hPa]', fontsize=5, color='0.2',labelpad=-0.2) 
+         cb.set_label(r'Sea Level Pressure Bias [hPa]', fontsize=9, color='0.2',labelpad=0) 
     if dataset=='3':
-        cb.set_label(r'Daily Precipitation Bias [mm]', fontsize=5, color='0.2',labelpad=-0.2)                
+        cb.set_label(r'Daily Precipitation Bias [mm]', fontsize=9, color='0.2',labelpad=0)                
 if metric=='2':
     if contourf_var=='1':
         cb.set_label(r'Air Temperature at 2 meters Root Mean Square Error [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.2)
@@ -583,7 +583,7 @@ if metric=='4':
     if dataset=='3':
         cb.set_label(r'Daily Precipitation Mean Absolute Error [mm]', fontsize=5, color='0.2',labelpad=-0.2)               
 
-cb.ax.tick_params(labelsize=5, length=2, color='0.2', labelcolor='0.2',direction='in') 
+cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
 cb.set_ticks(ticks)
 try:
     os.makedirs("wrf_evaluation")
