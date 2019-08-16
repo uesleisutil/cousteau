@@ -18,17 +18,17 @@ Extract data from WRF output and save in ASCII format:
 """
 
 # Import variables.
-from   wrf import getvar,ll_to_xy,extract_times
+from   wrf          import getvar,ll_to_xy,extract_times
 import netCDF4
 import csv
 from   progress.bar import IncrementalBar
-import numpy as np
-from   datetime              import datetime
-import pandas as pd
+import numpy        as np
+from   datetime     import datetime
+import pandas       as pd
 
 # Select WRF latitude/longitude and time-step.
-lat      = -25.53
-lon      = -48.51
+lat      = -26.9
+lon      = -49.21
 inittime = 0
 
 # Insert WRF file directory.
@@ -50,13 +50,13 @@ uvmet_list = np.zeros([range_loop])
 # Starting looping throught time.
 for i in range(inittime,range_loop,1):
     # Open WRF variables.
-    rh         = getvar(nc_file,'rh2',timeidx=i,method='cat',squeeze=True,meta=False)
-    uvmet      = getvar(nc_file,'uvmet10_wspd_wdir',timeidx=i,method='cat',squeeze=True,meta=False,units="m s-1")
-    slp        = getvar(nc_file,'slp',timeidx=i,method='cat',squeeze=True,meta=False,units="hPa")
-    tc         = nc_file.variables['T2'][i,:,:]
+    rh    = getvar(nc_file,'rh2',timeidx=i,method='cat',squeeze=True,meta=False)
+    uvmet = getvar(nc_file,'uvmet10_wspd_wdir',timeidx=i,method='cat',squeeze=True,meta=False,units="m s-1")
+    slp   = getvar(nc_file,'slp',timeidx=i,method='cat',squeeze=True,meta=False,units="hPa")
+    tc    = nc_file.variables['T2'][i,:,:]
     
     # Calculate the XY location throught the specified latitude and longitude coordinates.
-    latlon     = ll_to_xy(nc_file,lat,lon,timeidx=i,squeeze=True,meta=False,as_int=True,stagger='m')
+    latlon = ll_to_xy(nc_file,lat,lon,timeidx=i,squeeze=True,meta=False,as_int=True,stagger='m')
     
     # Store the data from the desired location.
     rh            = rh[latlon[0],latlon[1]]
