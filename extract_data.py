@@ -27,8 +27,8 @@ from   datetime     import datetime
 import pandas       as pd
 
 # Select WRF latitude/longitude and time-step.
-lat      = -26.9
-lon      = -49.21
+lat      = -28.3
+lon      = -49.93
 inittime = 0
 
 # Insert WRF file directory.
