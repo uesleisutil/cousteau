@@ -6,8 +6,8 @@ File name:      taylor_target_diagrams.py
 Author:         Ueslei Adriano Sutil
 Email:          uesleisutil1@gmail.com
 Created:        16 August 2019
-Last modified:  19 August 2019
-Version:        2.0
+Last modified:  20 August 2019
+Version:        2.1
 Python:         3.7.1
 
 Extract data from ASCII files then create Taylor and Target Diagrams.
