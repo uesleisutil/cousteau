@@ -89,8 +89,8 @@ if choose_plot == '1':
     fig = plt.figure(1,figsize=(15, 11))
     fig.set_figwidth(15)
     fig.add_subplot(221)
-    plt.title(title +': ' + var +'\n'+ latlon, pad=60)
-    sm.taylor_diagram(sdev,crmsd,ccoef, numberpanels=2, alpha = 0.0, checkstats = 'on', markerSize=12,markerColor='r',markerLegend='off', colOBS = 'crimson', colRMS='C0', colCOR='k',markerobs = '*', styleOBS='-',styleCOR='-', styleRMS=':', titleCOR='on',titleSTD='on',titleRMS='on',widthOBS=0.7,widthCOR=0.2,widthRMS=1,widthSTD=0.7,tickSTD=[1,2,3,0,-1,-2,-3],tickCOR=[1, .99, .95, .90, .8, .6, .3, -.3, -.6, -.8, -.9, -.95, -.99, -1])
+    plt.title(title +': ' + var ++ latlon, pad=60)
+    sm.taylor_diagram(sdev,crmsd,ccoef, numberpanels=2, alpha = 0.0, checkstats = 'on', markerSize=24,markerColor='r',markerLegend='off', colOBS = 'crimson', colRMS='C0', colCOR='k',markerobs = '*', styleOBS='-',styleCOR='-', styleRMS=':', titleCOR='on',titleSTD='on',titleRMS='on',widthOBS=0.7,widthCOR=0.2,widthRMS=1,widthSTD=0.7,tickSTD=[1,2,3,0,-1,-2,-3],tickCOR=[1, .99, .95, .90, .8, .6, .3, -.3, -.6, -.8, -.9, -.95, -.99, -1])
     
     fig.add_subplot(223)
     sm.target_diagram(bias,crmsd,rmsd,circles=[1,2,3,4,5], markersize=9,ticks=np.arange(-5,6,1),equalAxes='on',circleLineWidth=0.7,markerLabelColor = 'b',markerColor = 'r', markerLegend = 'off')
@@ -100,9 +100,14 @@ if choose_plot == '1':
     plt.savefig('TaylorTarget_'+title+'_'+var+'.png', transparent=False, bbox_inches ='tight', pad_inches=0, dpi=250)
 
 if choose_plot == '2':
-    plt.title(title +': ' + var +'\n'+ latlon, pad=40)
-    sm.taylor_diagram(sdev,crmsd,ccoef, numberpanels=2, alpha = 0.0, checkstats = 'on', markerSize=12,markerColor='r',markerLegend='off', colOBS = 'crimson', colRMS='C0', colCOR='k',markerobs = '*', styleOBS='-',styleCOR='-', styleRMS=':', titleCOR='on',titleSTD='on',titleRMS='on',widthOBS=0.7,widthCOR=0.2,widthRMS=1,widthSTD=0.7,tickSTD=[1,2,3,0,-1,-2,-3],tickCOR=[1, .99, .95, .90, .8, .6, .3, -.3, -.6, -.8, -.9, -.95, -.99, -1])
-    
+    plt.title(title+': '+  latlon + '\n' + var, pad=20, fontsize=7)
+    #sm.taylor_diagram(sdev,crmsd,ccoef,numberpanels=2, alpha = 1.0, checkstats = 'on', markerSize=12,markerColor='r',markerLegend='off', colOBS = 'olive', colRMS='C0', colCOR='k',markerobs = '.', styleOBS='-',styleCOR='-', styleRMS=':', titleCOR='on',titleSTD='on',titleRMS='on',widthOBS=0.7,widthCOR=0.2,widthRMS=1,widthSTD=0.7,tickSTD=[2,4,6,8,10,0,-2,-4,-6,-8,-10],tickRMS=[2.5,5,7.5,10,12.5],tickCOR=[1, .99, .95, .90, .8, .6, .3, -.3, -.6, -.8, -.9, -.95, -.99, -1])
+    sm.taylor_diagram(sdev,crmsd,ccoef, titlermsdangle=155, markerSize=12, markerColor='r',
+                      markerLegend='off', colOBS = 'C0', colRMS='C0', 
+                      colCOR='k', markerobs= '.', styleOBS='', styleSTD='--', styleCOR='-', 
+                      styleRMS='-', titleCOR='on', titleSTD='on', titleRMS='on', widthOBS=0.7, 
+                      widthCOR=0.4, widthRMS=0.3, widthSTD=0.4, tickSTD=[0,0.5,1,1.5,2],
+                      tickRMS=[0.5,1,1.5,2], tickCOR=[ 0.99, 0.95, 0.9, 0.8, 0.6, 0.3 ])   
     plt.savefig('Taylor_'+title+'_'+var+'.png', transparent=False, bbox_inches ='tight', pad_inches=0, dpi=250)
 
 if choose_plot == '3':
