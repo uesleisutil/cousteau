@@ -29,6 +29,11 @@ Compare:
         
     - MSWEP (Beck et al., 2019; http://www.gloh2o.org/):
         Daily Precipitation (mm).
+
+Post-process de ROMS simulation to match with the databases:
+    cdo seltimestep,169/336 wrf.nc wrf_ts.nc
+    cdo daymean wrf_ts.nc wrf_ts_daymean_mswep.nc
+    cdo timselmean,6 wrf_ts.nc wrf_ts_6hour_cfsr.nc
 """
   
 # Library import.
@@ -49,7 +54,7 @@ matplotlib.use("Agg")
 bbox                = [-52.5, -45.5, -30.5, -25.5]
 lonbounds           = [-58,-32] 
 latbounds           = [-33,-20]
-wrf_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf.nc'
+wrf_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_ts.nc'
 wrf_file_cfsr     = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/WRF/wrf_6h_cfsr.nc'
 wrf_file_mswep    = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/WRF/wrf_rain.nc'
 era_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ERA5/era5.nc'
