@@ -54,8 +54,8 @@ print(bg.da_cyan+'Which project? (1) SC_2008, (2) ATLEQ or (3) Antartic.'+bg.rs)
 project = input()
 if project =='1':
     bbox                = [-52.5, -45.5, -30.5, -25.5]
-    lonbounds           = [-58,-32] 
-    latbounds           = [-36,-20]
+    lonbounds           = [-52.5,-45.5] 
+    latbounds           = [-30.5,-25.5]
     clevs_rmse_sst      = np.arange(0,3.51,0.01)
     ticks_rmse_sst      = np.array([0,0.5,1,1.5,2,2.5,3,3.5,4]) 
     clevs_mae_sst       = np.arange(-3,3.01,0.01)
@@ -66,8 +66,8 @@ if project =='1':
     clevs_mae_cur       = np.arange(-0.51,0.51,0.01)
     ticks_mae_cur       = np.array([0.5,-0.25,0,0.25,0.5]) 
 
-    roms_mur_glorys_dir = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ROMS/roms_mur_glorys_eval.nc'
-    roms_oscar_dir      = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ROMS/roms_oscar_eval.nc'
+    roms_mur_glorys_dir = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/roms_mur_glorys_eval.nc'
+    roms_oscar_dir      = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/roms_oscar_eval.nc'
     mur_dir             = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/MUR/mur.nc' 
     glorys_dir          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/Glorys/glorys.nc'  
     oscar_dir           = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/OSCAR/oscar.nc'  
