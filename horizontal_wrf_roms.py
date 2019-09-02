@@ -43,12 +43,13 @@ from   sty                   import bg, rs
 from   datetime              import datetime
 import pandas                as     pd
 from   progress.bar          import IncrementalBar
+plt.use('Agg')
+
 # 2. Customizations.
 
 print(bg.da_cyan+'Which project? (1) SC_2008, (2) ATLEQ or (3) Antartic.'+bg.rs)
 project = input()
 if project=='1':
-
     print(bg.da_cyan+'Which experiment? (1) -100%, (2) -80%, (3) -60%, (4) -40%, (5), -20%, (6) Normal, (7) +20%, (8) +40%, (9) +60 (10) +80 or (11) +100%.'+bg.rs)
     exp = input()
     if exp=='1':
@@ -134,7 +135,7 @@ if project=='3':
     ntimes        = len(atemp)
 
 if project =='1' or project=='2':
-    print(bg.da_cyan+'Which contour? (1) Sea Surface Temperature, (2) Salinity, (3) Precipitation or (4) Heat Fluxes.'+bg.rs)
+    print(bg.da_cyan+'Which contour? (1) Sea Surface Temperature, (2) Salinity, (3) Precipitation, (4) Heat Fluxes.'+bg.rs)
     contourf_var  = input()
 if project =='3':
     print(bg.da_cyan+'Which contour? (1) Sea Surface Temperature, (2) Salinity, (3) Precipitation, (4) Heat Fluxes or (5) Fraction of cell covered by ice.'+bg.rs)
