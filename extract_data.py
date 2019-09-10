@@ -27,8 +27,8 @@ from   datetime     import datetime
 import pandas       as pd
 
 # Select WRF latitude/longitude and time-step.
-lat      = -28.3
-lon      = -49.93
+lat      = -27.2457
+lon      = -48.574
 inittime = 0
 
 # Insert WRF file directory.
@@ -46,14 +46,20 @@ tc_list    = np.zeros([range_loop])
 rh_list    = np.zeros([range_loop])
 slp_list   = np.zeros([range_loop])
 uvmet_list = np.zeros([range_loop])
+prec_list = np.zeros([range_loop])
 
 # Starting looping throught time.
 for i in range(inittime,range_loop,1):
     # Open WRF variables.
-    rh    = getvar(nc_file,'rh2',timeidx=i,method='cat',squeeze=True,meta=False)
-    uvmet = getvar(nc_file,'uvmet10_wspd_wdir',timeidx=i,method='cat',squeeze=True,meta=False,units="m s-1")
-    slp   = getvar(nc_file,'slp',timeidx=i,method='cat',squeeze=True,meta=False,units="hPa")
-    tc    = nc_file.variables['T2'][i,:,:]
+    rh      = getvar(nc_file,'rh2',timeidx=i,method='cat',squeeze=True,meta=False)
+    uvmet   = getvar(nc_file,'uvmet10_wspd_wdir',timeidx=i,method='cat',squeeze=True,meta=False,units="m s-1")
+    slp     = getvar(nc_file,'slp',timeidx=i,method='cat',squeeze=True,meta=False,units="hPa")
+    tc      = nc_file.variables['T2'][i,:,:]
+    rainc1  = nc_file.variables['RAINC'][i+1,:,:]
+    rainnc1 = nc_file.variables['RAINNC'][i+1,:,:]   
+    rainc   = nc_file.variables['RAINC'][i,:,:]-rainc1
+    rainnc  = nc_file.variables['RAINNC'][i,:,:]-rainnc1
+    rain    = rainc+rainnc
     
     # Calculate the XY location throught the specified latitude and longitude coordinates.
     latlon = ll_to_xy(nc_file,lat,lon,timeidx=i,squeeze=True,meta=False,as_int=True,stagger='m')
@@ -64,17 +70,19 @@ for i in range(inittime,range_loop,1):
     slp           = slp[latlon[0],latlon[1]]
     tc            = tc[latlon[0],latlon[1]]
     tc            = tc-273.15
+    rain          = rain[latlon[0],latlon[1]]   
     tc_list[i]    = round(tc,1)
     rh_list[i]    = round(rh,0)
     slp_list[i]   = round(slp,1)
     uvmet_list[i] = round(uvmet,1)
+    prec_list[i]  = round(rain,0)    
     
     # Update the IncrementalBar.
     bar.next()
 bar.finish()     
 
 # Store the lists inside one variable.
-rows = zip(timestr, tc_list,rh_list,slp_list,uvmet_list)
+rows = zip(timestr, tc_list,rh_list,slp_list,uvmet_list,prec_list)
 
 # Save the variables in a CSV file
 with open('./output.csv', "w") as f:

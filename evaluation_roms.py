@@ -216,7 +216,7 @@ if contourf_var=='1':
     if metric=='1':
         clevs = clevs_rmse_sst
         ticks = ticks_rmse_sst
-        cmap  = cmocean.cm.thermal #matplotlib.pyplot.jet()
+        cmap  = matplotlib.pyplot.jet()
     if metric=='2':
         clevs = clevs_mae_sst
         ticks = ticks_mae_sst 
@@ -387,7 +387,7 @@ if contourf_var=='2':
     if metric=='1':
         clevs = clevs_rmse_cur
         ticks = ticks_rmse_cur
-        cmap  =  cmocean.cm.thermal
+        cmap  =  matplotlib.pyplot.jet()   #cmocean.cm.thermal
     if metric=='2':
         clevs = clevs_mae_cur
         ticks = ticks_mae_cur

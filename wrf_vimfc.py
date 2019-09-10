@@ -3,8 +3,13 @@ File name:      wrf_vimfc.py
 Author:         Ueslei Adriano Sutil
 Email:          uesleisutil1@gmail.com
 Created:        26 August 2019
+<<<<<<< HEAD
 Last modified:  02 September 2019
 Version:        1.2
+=======
+Last modified:  26 August 2019
+Version:        1.0
+>>>>>>> 26292d69271599df1c602f8e8c2e1d9669c544c6
 Python:         3.7.1
 
 Plot Vertical Integrated Moisture Flux Convergence from WRF output.
@@ -19,25 +24,35 @@ v. 20, p. 351-366, 2005.
 
 van Zomeren, J.; van Delden, A. Vertically integrated moisture flux convergence
 as a predictor of thunderstorms. Atmospheric Research, v. 83, p. 435-445, 2007.
+<<<<<<< HEAD
+=======
+
+>>>>>>> 26292d69271599df1c602f8e8c2e1d9669c544c6
 """
 
 # Python preable.
 import numpy                as     np
 from   wrf                  import getvar,interplevel,latlon_coords,to_np,extract_times
 import matplotlib.pyplot    as     plt
+<<<<<<< HEAD
 import matplotlib
 import matplotlib.cm
+=======
+>>>>>>> 26292d69271599df1c602f8e8c2e1d9669c544c6
 from   mpl_toolkits.basemap import Basemap
 from   progress.bar         import IncrementalBar
 import pandas               as     pd
 import netCDF4
 import os
 import cmocean
+<<<<<<< HEAD
 import sys
 import warnings
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 matplotlib.use('Agg')
+=======
+>>>>>>> 26292d69271599df1c602f8e8c2e1d9669c544c6
 
 # Set file directory and lon/lat.
 wrf_file      = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/vimfc.nc'
@@ -45,9 +60,15 @@ wrf_file2     = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/w
 nc_wrf        = netCDF4.Dataset(wrf_file)
 nc_wrf2       = netCDF4.Dataset(wrf_file2)
 bbox          = [-52.5, -45.5, -30.5, -25.5]
+<<<<<<< HEAD
 clevs         = np.arange(-0.10,0.105,0.005)
 ticks         = np.arange(min(clevs),max(clevs),0.05)  
 cmap          = matplotlib.cm.bwr
+=======
+clevs         = np.arange(-0.1,0.105,0.005)
+ticks         = np.arange(min(clevs),max(clevs),0.05)  
+cmap          = cmocean.cm.balance   
+>>>>>>> 26292d69271599df1c602f8e8c2e1d9669c544c6
 create_video  = True
 ppt_fig       = False # If True, generate a figure with transparent background.
 
@@ -99,7 +120,11 @@ for i in range_loop:
     Skk     = ax.quiverkey(K, 0.20, -0.13, 10, ' Wind Vector at 850 hPa\n 10 m.s⁻¹ ',coordinates='axes',color='blue',labelsep=0.05, labelcolor='black',fontproperties={'size': '9'})
 
     # Plot contourf variable.
+<<<<<<< HEAD
     h1  = m.contourf(lons_wrf, lats_wrf, vimfc, clevs,latlon=True,cmap=cmap,extend="both",spacing="proportional",midpoint=0)       
+=======
+    h1  = m.contourf(lons_wrf, lats_wrf, vimfc, clevs,latlon=True,cmap=cmap,extend="both")       
+>>>>>>> 26292d69271599df1c602f8e8c2e1d9669c544c6
     cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])     
     cb  = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
     cb.set_label(r'Vertically Integrated Moisture Flux Convergence [10⁻⁵ Kg m⁻²s⁻¹]', fontsize=9, color='0.2',labelpad=-0.5)
