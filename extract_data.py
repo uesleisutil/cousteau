@@ -55,11 +55,17 @@ for i in range(inittime,range_loop,1):
     uvmet   = getvar(nc_file,'uvmet10_wspd_wdir',timeidx=i,method='cat',squeeze=True,meta=False,units="m s-1")
     slp     = getvar(nc_file,'slp',timeidx=i,method='cat',squeeze=True,meta=False,units="hPa")
     tc      = nc_file.variables['T2'][i,:,:]
-    rainc1  = nc_file.variables['RAINC'][i+1,:,:]
-    rainnc1 = nc_file.variables['RAINNC'][i+1,:,:]   
-    rainc   = nc_file.variables['RAINC'][i,:,:]-rainc1
-    rainnc  = nc_file.variables['RAINNC'][i,:,:]-rainnc1
-    rain    = rainc+rainnc
+    if i == inittime:
+        rainc  = nc_file.variables['RAINC'][i,:,:]
+        rainnc = nc_file.variables['RAINNC'][i,:,:] 
+        rain   = rainc+rainnc
+    if i > inittime:
+        rainc1  = nc_file.variables['RAINC'][i,:,:]
+        rainnc1 = nc_file.variables['RAINNC'][i,:,:] 
+        rainc   = nc_file.variables['RAINC'][i-1,:,:]-rainc1
+        rainnc  = nc_file.variables['RAINNC'][i-1,:,:]-rainnc1
+        rain    = rainc1+rainnc1
+
     
     # Calculate the XY location throught the specified latitude and longitude coordinates.
     latlon = ll_to_xy(nc_file,lat,lon,timeidx=i,squeeze=True,meta=False,as_int=True,stagger='m')
@@ -76,7 +82,7 @@ for i in range(inittime,range_loop,1):
     slp_list[i]   = round(slp,1)
     uvmet_list[i] = round(uvmet,1)
     prec_list[i]  = round(rain,0)    
-    
+
     # Update the IncrementalBar.
     bar.next()
 bar.finish()     

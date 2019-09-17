@@ -150,13 +150,13 @@ if dataset == '1':
    
     if contourf_var=='2':
         nc_era      = netCDF4.Dataset(era_file)
-        lon_era     = nc_era.variables['longitude'][:]-360
+        lon_era     = nc_era.variables['longitude'][:]-180
         lat_era     = nc_era.variables['latitude'][:]
         latli       = np.argmin(np.abs(lat_era-latbounds[1]))
         latui       = np.argmin(np.abs(lat_era-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_era-lonbounds[0]))
         lonui       = np.argmin(np.abs(lon_era-lonbounds[1]))  
-        lon_era     = nc_era.variables['longitude'][lonli:lonui]-360
+        lon_era     = nc_era.variables['longitude'][lonli:lonui]-180
         lat_era     = nc_era.variables['latitude'][latli:latui]
         lon_era,lat_era = np.meshgrid(lon_era,lat_era)
         era_lat_len = len(lat_era[:,0])
