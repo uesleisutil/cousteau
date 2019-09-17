@@ -26,16 +26,13 @@ Compare:
         Temperature at 2 meters height (°C);
         Wind Speed at 10 m height (m/s);
         Sea Level Pressure (hPa);
-        
-    - MSWEP (Beck et al., 2019; http://www.gloh2o.org/):
-        Daily Precipitation (mm).
 
 Post-process the WRF simulation to match with the databases:
     cdo seltimestep,169/336 wrf.nc wrf_ts.nc
     cdo daymean wrf_ts.nc wrf_ts_daymean_mswep.nc
     cdo timselmean,6 wrf_ts.nc wrf_ts_6hour_cfsr.nc
 """
-  
+
 # Library import.
 import numpy as np
 import matplotlib.pyplot as plt
@@ -44,25 +41,22 @@ import netCDF4
 from   roms_libs import *
 import pyresample
 import cmocean
-import subprocess, os
-from wrf import destagger,getvar
-from sty import bg, rs
+import os
+from wrf import getvar
 from progress.bar import IncrementalBar
-matplotlib.use("Agg")
+matplotlib.use('Agg')
 
 # Customizations.
-bbox                = [-52.5, -45.5, -30.5, -25.5]
-lonbounds           = [-52.5,-45.5] 
-latbounds           = [-30.5,-25.5]
-wrf_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf.nc'
+bbox              = [-65,-35,-40,-15]
+lonbounds         = [-65,-35] 
+latbounds         = [-40,-15]
+wrf_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_ts.nc'
 wrf_file_cfsr     = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_6h_ncks.nc'
-wrf_file_mswep    = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_daymean_ncks.nc'
 era_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ERA5/era5.nc'
 cfsr_file         = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/CFSR/cfsr.nc'
-mswep_file        = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/MSWEP/mswep.nc'
 
-clevs_bias_t2     = np.arange(-7,2.05,0.01)
-ticks_bias_t2     = np.arange(min(clevs_bias_t2),max(clevs_bias_t2),1)
+clevs_bias_t2     = np.arange(-7,7.5,0.01)
+ticks_bias_t2     = np.arange(min(clevs_bias_t2),max(clevs_bias_t2),2)
 clevs_rmse_t2     = np.arange(0,9.05,0.01)
 ticks_rmse_t2     = np.arange(min(clevs_rmse_t2),max(clevs_rmse_t2),1)
 clevs_nrmse_t2    = np.arange(0,0.405,0.001)
@@ -88,30 +82,21 @@ ticks_nrmse_slp   = np.arange(min(clevs_nrmse_slp),max(clevs_nrmse_slp),0.3)
 clevs_mae_slp     = np.arange(0,14.02,0.01)
 ticks_mae_slp     = np.arange(min(clevs_mae_slp),max(clevs_mae_slp),1)
 
-clevs_bias_prec   = np.arange(-15,225.1,0.1)
-ticks_bias_prec   = np.arange(min(clevs_bias_prec),max(clevs_bias_prec),20)
-clevs_rmse_prec   = np.arange(0,230.1,0.1)
-ticks_rmse_prec   = np.arange(min(clevs_rmse_prec),max(clevs_rmse_prec),20)
-clevs_nrmse_prec  = np.arange(0,230.03,0.1)
-ticks_nrmse_prec  = np.arange(min(clevs_nrmse_prec),max(clevs_nrmse_prec),5)
-clevs_mae_prec    = np.arange(0,5.02,0.01)
-ticks_mae_prec    = np.arange(min(clevs_mae_prec),max(clevs_mae_prec),1)
-
-
-print(bg.da_cyan+'Which data? (1) ERA5, (2) CFSR or (3) MSWEP?'+bg.rs)      
+print('Which data? (1) ERA5 or (2) CFSR?')      
 dataset  = input()
+
 if dataset == '1':
-    print(bg.da_cyan+'Evaluate which WRF-ARW variable? (1) Temperature at 2 meters, (2) Wind Speed at 10m, (3) Sea Level Pressure?'+bg.rs)
+    print('Evaluate which WRF-ARW variable? (1) Temperature at 2 meters, (2) Wind Speed at 10m, (3) Sea Level Pressure?')
     contourf_var  = input()
     if contourf_var == '1':
         nc_era      = netCDF4.Dataset(era_file)
-        lon_era     = nc_era.variables['longitude'][:]-180
+        lon_era     = nc_era.variables['longitude'][:]-360
         lat_era     = nc_era.variables['latitude'][:]
         latli       = np.argmin(np.abs(lat_era-latbounds[1]))
         latui       = np.argmin(np.abs(lat_era-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_era-lonbounds[0]))
         lonui       = np.argmin(np.abs(lon_era-lonbounds[1]))  
-        lon_era     = nc_era.variables['longitude'][lonli:lonui]-180
+        lon_era     = nc_era.variables['longitude'][lonli:lonui]-360
         lat_era     = nc_era.variables['latitude'][latli:latui]
         lon_era,lat_era = np.meshgrid(lon_era,lat_era)
         era_lat_len = len(lat_era[:,0])
@@ -126,8 +111,8 @@ if dataset == '1':
         bar.finish()
                        
         nc_wrf      = netCDF4.Dataset(wrf_file)
-        lon_wrf     = nc_wrf.variables['XLONG'][0,0,:]
-        lat_wrf     = nc_wrf.variables['XLAT'][0,:,0]               
+        lon_wrf     = nc_wrf.variables['XLONG'][0,:]
+        lat_wrf     = nc_wrf.variables['XLAT'][:,0]               
         latli       = np.argmin(np.abs(lat_wrf-latbounds[1]))
         latui       = np.argmin(np.abs(lat_wrf-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_wrf-lonbounds[0]))
@@ -173,8 +158,8 @@ if dataset == '1':
             bar.next()
         bar.finish()
         nc_wrf      = netCDF4.Dataset(wrf_file)
-        lon_wrf     = nc_wrf.variables['XLONG'][0,0,:]
-        lat_wrf     = nc_wrf.variables['XLAT'][0,:,0]               
+        lon_wrf     = nc_wrf.variables['XLONG'][0,:]
+        lat_wrf     = nc_wrf.variables['XLAT'][:,0]               
         latli       = np.argmin(np.abs(lat_wrf-latbounds[1]))
         latui       = np.argmin(np.abs(lat_wrf-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_wrf-lonbounds[0]))
@@ -226,8 +211,8 @@ if dataset == '1':
         bar.finish()  
 
         nc_wrf      = netCDF4.Dataset(wrf_file)
-        lon_wrf     = nc_wrf.variables['XLONG'][0,0,:]
-        lat_wrf     = nc_wrf.variables['XLAT'][0,:,0]               
+        lon_wrf     = nc_wrf.variables['XLONG'][0,:]
+        lat_wrf     = nc_wrf.variables['XLAT'][:,0]               
         latli       = np.argmin(np.abs(lat_wrf-latbounds[1]))
         latui       = np.argmin(np.abs(lat_wrf-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_wrf-lonbounds[0]))
@@ -249,7 +234,7 @@ if dataset == '1':
         bar.finish()  
         
 if dataset == '2':
-    print(bg.da_cyan+'Evaluate which WRF-ARW variable? (1) Temperature at 2 meters, (2) Wind Speed at 10m or (3) Sea Level Pressure?'+bg.rs)
+    print('Evaluate which WRF-ARW variable? (1) Temperature at 2 meters, (2) Wind Speed at 10m or (3) Sea Level Pressure?')
     contourf_var  = input()
     if contourf_var=='1':
         nc_cfsr      = netCDF4.Dataset(cfsr_file)
@@ -396,58 +381,7 @@ if dataset == '2':
             bar.next()
         bar.finish() 
 
-if dataset=='3':
-        contourf_var  = 1
-        nc_mswep      = netCDF4.Dataset(mswep_file)
-        lon_mswep     = nc_mswep.variables['lon'][:]
-        lat_mswep     = nc_mswep.variables['lat'][:]
-        latli_mswep   = np.argmin(np.abs(lat_mswep-latbounds[1]))
-        latui_mswep   = np.argmin(np.abs(lat_mswep-latbounds[0])) 
-        lonli_mswep   = np.argmin(np.abs(lon_mswep-lonbounds[0]))
-        lonui_mswep   = np.argmin(np.abs(lon_mswep-lonbounds[1]))
-        lon_mswep     = nc_mswep.variables['lon'][lonli_mswep:lonui_mswep]
-        lat_mswep     = nc_mswep.variables['lat'][latli_mswep:latui_mswep]
-        lon_mswep,lat_mswep = np.meshgrid(lon_mswep,lat_mswep)
-        mswep_loop    = len(nc_mswep.variables['time'][:])
-        mswep_lat_len = len(lat_mswep[:,0])
-        mswep_lon_len = len(lon_mswep[0, :])
-        observed      = np.zeros([mswep_loop,mswep_lat_len,mswep_lon_len])
-        bar           = IncrementalBar('Processing Precipitation from MSWEP', max=mswep_loop)  
-        for i in range(0,mswep_loop):
-            rain_mswep      = nc_mswep.variables['precipitation'][i,latli_mswep:latui_mswep,lonli_mswep:lonui_mswep]           
-            observed[i,:,:] = rain_mswep
-            bar.next()
-        bar.finish() 
-
-        nc_wrf      = netCDF4.Dataset(wrf_file_mswep)
-        lon_wrf     = nc_wrf.variables['XLONG'][0,:]
-        lat_wrf     = nc_wrf.variables['XLAT'][:,0]               
-        latli       = np.argmin(np.abs(lat_wrf-latbounds[1]))
-        latui       = np.argmin(np.abs(lat_wrf-latbounds[0])) 
-        lonli       = np.argmin(np.abs(lon_wrf-lonbounds[0]))
-        lonui       = np.argmin(np.abs(lon_wrf-lonbounds[1]))
-        lon_wrf     = lon_wrf[lonli:lonui]
-        lat_wrf     = lat_wrf[latui:latli]
-        lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = len(nc_wrf.variables['Times'][:])
-        wrf_lat_len = len(lat_wrf[:,0])
-        wrf_lon_len = len(lon_wrf[0,:])
-        orig_def    = pyresample.geometry.SwathDefinition(lons=lon_wrf, lats=lat_wrf)
-        targ_def    = pyresample.geometry.SwathDefinition(lons=lon_mswep, lats=lat_mswep)
-        rainc_wrf2  = np.zeros([mswep_loop,mswep_lat_len,mswep_lon_len])
-        rainnc_wrf2 = np.zeros([mswep_loop,mswep_lat_len,mswep_lon_len])   
-        rain_wrf2   = np.zeros([mswep_loop,mswep_lat_len,mswep_lon_len])   
-        bar         = IncrementalBar('Processing Precipitation from WRF', max=mswep_loop)  
-        for i in range(0,wrf_loop):  
-            rainc_wrf          =  nc_wrf.variables['RAINC'][i,latui:latli,lonli:lonui]
-            rainc_wrf2[i,:,:]  = pyresample.kd_tree.resample_gauss(orig_def, rainc_wrf, targ_def, radius_of_influence=50000, neighbours=10,sigmas=25000, fill_value=None)
-            rainnc_wrf         =  nc_wrf.variables['RAINNC'][i,latui:latli,lonli:lonui]
-            rainnc_wrf2[i,:,:] = pyresample.kd_tree.resample_gauss(orig_def, rainnc_wrf, targ_def, radius_of_influence=50000, neighbours=10,sigmas=25000, fill_value=None)
-            bar.next()
-        bar.finish() 
-        expected  = rainc_wrf2+rainnc_wrf2
-
-print(bg.da_cyan+'Which statistical metric? (1) Bias, (2) RMSE, (3) NRMSE or (4) MAE.'+bg.rs)
+print('Which statistical metric? (1) Bias, (2) RMSE, (3) NRMSE or (4) MAE.')
 metric  = input()
 if metric=='1':
     val = np.mean(expected-observed,axis=0)
@@ -473,8 +407,8 @@ fig  = plt.figure(1,figsize=(10,8))
 plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=18,size=10)
 plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=33,size=10)
 ax   = fig.add_subplot(111)
-m.drawparallels(np.arange(-90.,120.,1), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
-m.drawmeridians(np.arange(-180.,180.,1), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
+m.drawparallels(np.arange(-90.,120.,4), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
+m.drawmeridians(np.arange(-180.,180.,5), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
 m.drawcountries(color = '#000000',linewidth=0.5)
 m.drawcoastlines(color = '#000000',linewidth=0.5)
 
@@ -514,42 +448,24 @@ if metric=='3' and contourf_var=='3':
 if metric=='4' and contourf_var=='3':
     clevs = clevs_mae_slp
     ticks = ticks_mae_slp
-if metric=='1' and dataset=='3':
-    clevs = clevs_bias_prec
-    ticks = ticks_bias_prec
-if metric=='2' and dataset=='3':
-    clevs = clevs_rmse_prec
-    ticks = ticks_rmse_prec
-if metric=='3' and dataset=='3':
-    clevs = clevs_nrmse_prec
-    ticks = ticks_nrmse_prec
-if metric=='4' and dataset=='3':
-    clevs = clevs_mae_prec
-    ticks = ticks_mae_prec
 
 if dataset == '1':
     if metric=='2' or metric=='3' or metric == '4':
         cmap  = matplotlib.pyplot.jet()
-        h1    = m.contourf(lon_era, lat_era, val, clevs,latlon=True,cmap=cmap)
+        h1    = m.contourf(lon_era, lat_era, val, clevs,latlon=True,cmap=cmap,extend="both")
     if metric=='1':
         cmap  = cmocean.cm.balance
-        h1    = m.contourf(lon_era, lat_era, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0))          
+        h1    = m.contourf(lon_era, lat_era, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both")          
 if dataset =='2':
     if metric=='2' or metric=='3' or metric == '4':
         cmap  = matplotlib.pyplot.jet()
         h1    = m.contourf(lon_cfsr, lat_cfsr, val, clevs,latlon=True,cmap=cmap)   
     if metric=='1':
         cmap  = cmocean.cm.balance
-        h1    = m.contourf(lon_cfsr, lat_cfsr, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0)) 
-if dataset == '3':
-    if metric=='2' or metric=='3' or metric == '4':
-        cmap  = matplotlib.pyplot.jet()
-        h1    = m.contourf(lon_mswep, lat_mswep, val, clevs,latlon=True,cmap=cmap)   
-    if metric=='1':
-        cmap  = cmocean.cm.balance
-        h1    = m.contourf(lon_mswep, lat_mswep, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0)) 
+        h1    = m.contourf(lon_cfsr, lat_cfsr, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both") 
 cax   = fig.add_axes([0.37, 0.025, 0.27, 0.025])     
 cb    = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks,pad=-10.5)
+
 
 if metric=='1':
     if contourf_var=='1':
@@ -558,8 +474,7 @@ if metric=='1':
         cb.set_label(r'Wind Speed at 10 meters Bias [m.s⁻¹]', fontsize=9, color='0.2',labelpad=0)
     if contourf_var=='3':
          cb.set_label(r'Sea Level Pressure Bias [hPa]', fontsize=9, color='0.2',labelpad=0) 
-    if dataset=='3':
-        cb.set_label(r'Daily Precipitation Bias [mm]', fontsize=9, color='0.2',labelpad=0)                
+            
 if metric=='2':
     if contourf_var=='1':
         cb.set_label(r'Air Temperature at 2 meters Root Mean Square Error [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.2)
@@ -567,8 +482,7 @@ if metric=='2':
         cb.set_label(r'Wind Speed at 10 meters Root Mean Square Error [m.s⁻¹]', fontsize=5, color='0.2',labelpad=-0.2)
     if contourf_var=='3':
         cb.set_label(r'Sea Level Pressure Root Mean Square Error [hPa]', fontsize=5, color='0.2',labelpad=-0.2)  
-    if dataset=='3':
-        cb.set_label(r'Daily Precipitation Root Mean Square Error [mm]', fontsize=5, color='0.2',labelpad=-0.2)               
+          
 if metric=='3':
     if contourf_var=='1':
         cb.set_label(r'Air Temperature at 2 meters Normalized Root Mean Square Error [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.2)
@@ -576,8 +490,7 @@ if metric=='3':
         cb.set_label(r'Wind Speed at 10 meters Normalized Root Mean Square Error [m.s⁻¹]', fontsize=5, color='0.2',labelpad=-0.2)
     if contourf_var=='3':
         cb.set_label(r'Sea Level Pressure Normalized Root Mean Square Error [hPa]', fontsize=5, color='0.2',labelpad=-0.2)  
-    if dataset=='3':
-        cb.set_label(r'Daily Precipitation Normalized Root Mean Square Error [mm]', fontsize=5, color='0.2',labelpad=-0.2)               
+            
 if metric=='4':
     if contourf_var=='1':
         cb.set_label(r'Air Temperature at 2 meters Mean Absolute Error [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.2)
@@ -585,8 +498,6 @@ if metric=='4':
         cb.set_label(r'Wind Speed at 10 meters Mean Absolute Error [m.s⁻¹]', fontsize=5, color='0.2',labelpad=-0.2)
     if contourf_var=='3':
         cb.set_label(r'Sea Level Pressure Mean Absolute Error [hPa]', fontsize=5, color='0.2',labelpad=-0.2)  
-    if dataset=='3':
-        cb.set_label(r'Daily Precipitation Mean Absolute Error [mm]', fontsize=5, color='0.2',labelpad=-0.2)               
 
 cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
 cb.set_ticks(ticks)
@@ -642,13 +553,4 @@ if metric == '4' and dataset == '2' and contourf_var == '2':
         plt.savefig('./wrf_evaluation/wind_mae_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
 if metric == '4' and dataset == '2' and contourf_var == '3':
         plt.savefig('./wrf_evaluation/slp_mae_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)      
-if metric == '1' and dataset == '3':
-        plt.savefig('./wrf_evaluation/prec_bias_wrf_mswep.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)  
-if metric == '2' and dataset == '3':
-        plt.savefig('./wrf_evaluation/prec_rmse_wrf_mswep.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)  
-if metric == '3' and dataset == '3':
-        plt.savefig('./wrf_evaluation/prec_nrmse_wrf_mswep.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)  
-if metric == '4' and dataset == '3':
-        plt.savefig('./wrf_evaluation/prec_mae_wrf_mswep.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250) 
-
 
