@@ -29,35 +29,35 @@ Compare:
 
 Post-process the WRF simulation to match with the databases:
     cdo seltimestep,169/336 wrf.nc wrf_ts.nc
-    cdo daymean wrf_ts.nc wrf_ts_daymean_mswep.nc
-    cdo timselmean,6 wrf_ts.nc wrf_ts_6hour_cfsr.nc
+    cdo timselmean,6 wrf_ts.nc wrf_6h_ncks.nc
+    cdo daymean wrf_6h_ncks.nc wrf_daymean_ncks.nc
 """
 
 # Library import.
-import numpy as np
-import matplotlib.pyplot as plt
+import numpy                as np
+import matplotlib.pyplot    as plt
 from   mpl_toolkits.basemap import Basemap
+from   roms_libs            import *
+from   wrf                  import getvar
+from   progress.bar         import IncrementalBar
 import netCDF4
-from   roms_libs import *
 import pyresample
 import cmocean
 import os
-from wrf import getvar
-from progress.bar import IncrementalBar
 matplotlib.use('Agg')
 
 # Customizations.
-bbox              = [-65,-35,-40,-15]
-lonbounds         = [-65,-35] 
-latbounds         = [-40,-15]
+bbox              = [-57,-40,-34,-22.2]
+lonbounds         = [-57,-40] 
+latbounds         = [-34,-22.2]
 wrf_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_ts.nc'
 wrf_file_cfsr     = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_6h_ncks.nc'
 era_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ERA5/era5.nc'
 cfsr_file         = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/CFSR/cfsr.nc'
 
-clevs_bias_t2     = np.arange(-7,7.5,0.01)
+clevs_bias_t2     = np.arange(-6,6.5,0.01)
 ticks_bias_t2     = np.arange(min(clevs_bias_t2),max(clevs_bias_t2),2)
-clevs_rmse_t2     = np.arange(0,9.05,0.01)
+clevs_rmse_t2     = np.arange(0,15.05,0.01)
 ticks_rmse_t2     = np.arange(min(clevs_rmse_t2),max(clevs_rmse_t2),1)
 clevs_nrmse_t2    = np.arange(0,0.405,0.001)
 ticks_nrmse_t2    = np.arange(min(clevs_nrmse_t2),max(clevs_nrmse_t2),0.05)
@@ -220,7 +220,7 @@ if dataset == '1':
         lon_wrf     = lon_wrf[lonli:lonui]
         lat_wrf     = lat_wrf[latui:latli]
         lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = len(nc_wrf.variables['Times'][168:409])
+        wrf_loop    = len(nc_wrf.variables['Times'][:])
         wrf_lat_len = len(lat_wrf[:,0])
         wrf_lon_len = len(lon_wrf[0,:])
         orig_def    = pyresample.geometry.SwathDefinition(lons=lon_wrf, lats=lat_wrf)
@@ -268,8 +268,7 @@ if dataset == '2':
         lon_wrf     = lon_wrf[lonli:lonui]
         lat_wrf     = lat_wrf[latui:latli]
         lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = nc_wrf.variables['Times'][168:409]
-        wrf_loop    = wrf_loop[::6,0]
+        wrf_loop    = nc_wrf.variables['Times'][:]
         wrf_loop    = len(wrf_loop)
         wrf_lat_len = len(lat_wrf[:,0])
         wrf_lon_len = len(lon_wrf[0,:])
@@ -309,8 +308,8 @@ if dataset == '2':
         bar.finish()
 
         nc_wrf      = netCDF4.Dataset(wrf_file_cfsr)
-        lon_wrf     = nc_wrf.variables['XLONG'][0,0,:]
-        lat_wrf     = nc_wrf.variables['XLAT'][0,:,0]               
+        lon_wrf     = nc_wrf.variables['XLONG'][0,:]
+        lat_wrf     = nc_wrf.variables['XLAT'][:,0]               
         latli       = np.argmin(np.abs(lat_wrf-latbounds[1]))
         latui       = np.argmin(np.abs(lat_wrf-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_wrf-lonbounds[0]))
@@ -318,7 +317,7 @@ if dataset == '2':
         lon_wrf     = lon_wrf[lonli:lonui]
         lat_wrf     = lat_wrf[latui:latli]
         lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = len(nc_wrf.variables['Times'][168:409])
+        wrf_loop    = len(nc_wrf.variables['Times'][:])
         wrf_lat_len = len(lat_wrf[:,0])
         wrf_lon_len = len(lon_wrf[0,:])
         orig_def    = pyresample.geometry.SwathDefinition(lons=lon_wrf, lats=lat_wrf)
@@ -359,8 +358,8 @@ if dataset == '2':
         bar.finish()   
 
         nc_wrf      = netCDF4.Dataset(wrf_file_cfsr)
-        lon_wrf     = nc_wrf.variables['XLONG'][0,0,:]
-        lat_wrf     = nc_wrf.variables['XLAT'][0,:,0]               
+        lon_wrf     = nc_wrf.variables['XLONG'][0,:]
+        lat_wrf     = nc_wrf.variables['XLAT'][:,0]               
         latli       = np.argmin(np.abs(lat_wrf-latbounds[1]))
         latui       = np.argmin(np.abs(lat_wrf-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_wrf-lonbounds[0]))
@@ -368,7 +367,7 @@ if dataset == '2':
         lon_wrf     = lon_wrf[lonli:lonui]
         lat_wrf     = lat_wrf[latui:latli]
         lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = len(nc_wrf.variables['Times'][168:409])
+        wrf_loop    = len(nc_wrf.variables['Times'][:])
         wrf_lat_len = len(lat_wrf[:,0])
         wrf_lon_len = len(lon_wrf[0,:])
         orig_def    = pyresample.geometry.SwathDefinition(lons=lon_wrf, lats=lat_wrf)
@@ -384,21 +383,22 @@ if dataset == '2':
 print('Which statistical metric? (1) Bias, (2) RMSE, (3) NRMSE or (4) MAE.')
 metric  = input()
 if metric=='1':
-    val = np.mean(expected-observed,axis=0)
+    val = expected-observed
+    val = np.nanmean(val,axis=(0))
 if metric=='2':
-    differences = expected-observed
-    differences_squared = differences ** 2 
+    differences                 = expected-observed
+    differences_squared         = differences ** 2 
     mean_of_differences_squared = np.average(differences_squared,axis=0)
-    val = np.sqrt(mean_of_differences_squared)
+    val                         = np.sqrt(mean_of_differences_squared)
 if metric=='3':
-    differences = expected-observed
-    differences_squared = differences ** 2 
+    differences                 = expected-observed
+    differences_squared         = differences ** 2 
     mean_of_differences_squared = np.average(differences_squared,axis=0)
-    rmse = np.sqrt(mean_of_differences_squared)
-    val  = rmse/np.mean(observed,axis=0)
+    rmse                        = np.sqrt(mean_of_differences_squared)
+    val                         = rmse/np.nanmean(observed,axis=0)
 if metric=='4':
     error = expected-observed
-    val   = np.mean(np.abs(error),axis=0)
+    val   = np.nanmean(np.abs(error),axis=0)
 
 
 # Create and plot map.
@@ -407,8 +407,8 @@ fig  = plt.figure(1,figsize=(10,8))
 plt.xlabel('Longitude'u' [\N{DEGREE SIGN}]',labelpad=18,size=10)
 plt.ylabel('Latitude'u' [\N{DEGREE SIGN}]',labelpad=33,size=10)
 ax   = fig.add_subplot(111)
-m.drawparallels(np.arange(-90.,120.,4), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
-m.drawmeridians(np.arange(-180.,180.,5), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
+m.drawparallels(np.arange(-90.,120.,1), linewidth=0.00, color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
+m.drawmeridians(np.arange(-180.,180.,2), linewidth=0.00,color='black', labels=[1,0,0,1],labelstyle="N/S",fontsize=10)
 m.drawcountries(color = '#000000',linewidth=0.5)
 m.drawcoastlines(color = '#000000',linewidth=0.5)
 

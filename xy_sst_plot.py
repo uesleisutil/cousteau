@@ -53,6 +53,10 @@ from netCDF4 import Dataset
 from matplotlib.collections import LineCollection
 matplotlib.use('Agg')
 
+bbox              = [-57,-40,-34,-22.2]
+lonbounds         = [-57,-40] 
+latbounds         = [-34,-22.2]
+
 # Open files.
 print('Choose dataset: (1) GLORYS2V4, (2) SODA3, (3) OISST or (4) ERA5:')
 dataset    = input()
@@ -68,14 +72,14 @@ if dataset == '3':
     file_dir   = os.path.expanduser ('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/OISST/')
     file_name  = os.path.join(file_dir,'oisst_d01_monmean.nc')
     file_name2 = os.path.join(file_dir,'oisst_ssta_d01_monmean.nc')    
-    lonbounds  = [-65,-35]
-    latbounds  = [-40,-15]
+    lonbounds         = [-57,-40] 
+    latbounds         = [-34,-22]
 if dataset == '4':
     file_dir   = os.path.expanduser ('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/ERA5/')
     file_name  = os.path.join(file_dir,'era5_montlhy.nc')
     file_name2 = os.path.join(file_dir,'era5_ssta_montlhy.nc')    
-    lonbounds  = [-65,-35]
-    latbounds  = [-40,-15]    
+    lonbounds         = [-57,-40] 
+    latbounds         = [-34,-22]  
 
 # Open variables.
 if dataset =='1':
