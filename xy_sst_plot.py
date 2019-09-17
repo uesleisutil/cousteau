@@ -38,7 +38,6 @@ cdo -b F64 -ymonsub soda_sst_d02_1980_2016_montlhy.nc  -ymonmean soda_sst_d02_19
 
 To calculate the anomaly, you need to process ERA5 data using CDO. What I do:
 cdo -b F64 -ymonsub era5.nc  -ymonmean era5.nc era5_ssta.nc
-
 """
 
 import xarray as xr
@@ -51,6 +50,7 @@ import matplotlib.dates as mdates
 from sklearn.linear_model import LinearRegression
 from roms_libs import *
 from netCDF4 import Dataset
+from matplotlib.collections import LineCollection
 matplotlib.use('Agg')
 
 # Open files.
@@ -184,7 +184,7 @@ ax2.yaxis.set_minor_locator(AutoMinorLocator())
 ax2.tick_params(which='both',  width=2)
 ax2.tick_params(which='major', length=7)
 ax2.tick_params(which='minor', length=4)
-ax2.xaxis.set_major_locator(mdates.MonthLocator(bymonth =(1), bymonthday=15))
+ax2.xaxis.set_major_locator(mdates.MonthLocator(bymonth =(1), bymonthday=1))
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 if dataset == '1':
     ax2.set_title('Monthly Sea Surface Temperature Anomaly [$^\circ\!$C] from GLORYS2V4',fontsize=10)

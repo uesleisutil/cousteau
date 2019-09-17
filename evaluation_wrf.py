@@ -30,7 +30,7 @@ Compare:
     - MSWEP (Beck et al., 2019; http://www.gloh2o.org/):
         Daily Precipitation (mm).
 
-Post-process de ROMS simulation to match with the databases:
+Post-process the WRF simulation to match with the databases:
     cdo seltimestep,169/336 wrf.nc wrf_ts.nc
     cdo daymean wrf_ts.nc wrf_ts_daymean_mswep.nc
     cdo timselmean,6 wrf_ts.nc wrf_ts_6hour_cfsr.nc
@@ -105,13 +105,13 @@ if dataset == '1':
     contourf_var  = input()
     if contourf_var == '1':
         nc_era      = netCDF4.Dataset(era_file)
-        lon_era     = nc_era.variables['longitude'][:]-360
+        lon_era     = nc_era.variables['longitude'][:]-180
         lat_era     = nc_era.variables['latitude'][:]
         latli       = np.argmin(np.abs(lat_era-latbounds[1]))
         latui       = np.argmin(np.abs(lat_era-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_era-lonbounds[0]))
         lonui       = np.argmin(np.abs(lon_era-lonbounds[1]))  
-        lon_era     = nc_era.variables['longitude'][lonli:lonui]-360
+        lon_era     = nc_era.variables['longitude'][lonli:lonui]-180
         lat_era     = nc_era.variables['latitude'][latli:latui]
         lon_era,lat_era = np.meshgrid(lon_era,lat_era)
         era_lat_len = len(lat_era[:,0])
@@ -205,13 +205,13 @@ if dataset == '1':
 
     if contourf_var=='3':
         nc_era      = netCDF4.Dataset(era_file)
-        lon_era     = nc_era.variables['longitude'][:]-360
+        lon_era     = nc_era.variables['longitude'][:]-180
         lat_era     = nc_era.variables['latitude'][:]
         latli       = np.argmin(np.abs(lat_era-latbounds[1]))
         latui       = np.argmin(np.abs(lat_era-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_era-lonbounds[0]))
         lonui       = np.argmin(np.abs(lon_era-lonbounds[1]))  
-        lon_era     = nc_era.variables['longitude'][lonli:lonui]-360
+        lon_era     = nc_era.variables['longitude'][lonli:lonui]-180
         lat_era     = nc_era.variables['latitude'][latli:latui]
         lon_era,lat_era = np.meshgrid(lon_era,lat_era)
         era_lat_len = len(lat_era[:,0])
