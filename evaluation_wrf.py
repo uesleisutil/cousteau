@@ -129,7 +129,7 @@ if dataset == '1':
         bar         = IncrementalBar('Processing Air Temperature at 2 m from WRF', max=wrf_loop)
         for i in range(0,wrf_loop):  
             temp_wrf        = nc_wrf.variables['T2'][i,latui:latli,lonli:lonui]-273.15
-            expected[i,:,:] = pyresample.kd_tree.resample_gauss(orig_def, temp_wrf, targ_def, radius_of_influence=50000, neighbours=10,sigmas=25000, fill_value=None)
+            expected[i,:,:] = pyresample.kd_tree.resample_gauss(orig_def, temp_wrf, targ_def,radius_of_influence=50000, sigmas=25000, fill_value=None)
             bar.next()
         bar.finish()
    
