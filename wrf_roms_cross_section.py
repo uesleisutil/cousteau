@@ -6,13 +6,18 @@ File name:      roms_wrf_horizontal.py
 Author:         Ueslei Adriano Sutil
 Email:          uesleisutil1@gmail.com
 Created:        02 August 2017
-Last modified:  25 April 2019
-Version:        2.0
+Last modified:  30 September 2019
+Version:        2.5
 Python:         3.7.1
 
 Creates vertical plots from ROMS (his) and WRF-ARW outputs.
 
+WARNING: Since ROMS does not plot continent data, Use coordinates 
+         only inside the oceanm otherwise it will show a generical
+		 error. 
+
 bbox = [lon_min,lon_max,lat_min,lat_max]
+
 """
 
 import matplotlib.pyplot   as plt1
@@ -20,34 +25,34 @@ import matplotlib.pyplot   as plt
 import cmocean
 from   wrf                 import to_np, getvar, CoordPair, vertcross
 import matplotlib.gridspec as gridspec
-from   netCDF4             import Dataset,num2date
+from   netCDF4             import Dataset
 from   pyroms              import vgrid
 import numpy               as np
-
+from   roms_libs           import bbox2ij
+plt.switch_backend('Agg')
+plt.rcParams.update({'font.size': 9})
 # 1. WRF options.
-wrf_file    = "/media/ueslei/Ueslei/INPE/PCI/SC_2008/Outputs/normal/wrf.nc"
-wrf_start   = CoordPair(lat=0.008, lon=-49.61)
-wrf_end     = CoordPair(lat=0.008, lon=1.1)
+wrf_file    = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/antigo/wrf.nc'
+wrf_start   = CoordPair(lat=-5, lon=-20)
+wrf_end     = CoordPair(lat=5, lon=-20)
 wrf_levels  = np.arange(0,601.,1.) # Height (in meters).
 wrf_h_spac  = 100 # Height spacing in figure (in meters).
 wrf_time    = 1
 
 # 2. ROMS options.
-roms_file   = '/media/ueslei/Ueslei/INPE/PCI/SC_2008/Outputs/normal/roms.nc'
+roms_file   = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/antigo/roms.nc'
 roms_time   = 1
-roms_lat    = 183
-roms_lon    = 150
-	#TODO: Change ROMS inds to lat lon
-roms_depth  = -600 # (in meters)
+roms_depth  = -1500 # (in meters)
 
 # 3. Plotting options.
 col_label   = 'Temperature [°C]'
-clevs       = np.arange(5,30,0.01) # Min, max and spacing (In °C).
-cxlatlon    = 'Longitude [°]'
+clevs       = np.arange(10,30,0.01) # Min, max and spacing (In °C).
+cxlatlon    = 'Latitude [°]'
 fig_dir     = './'
 fig_name    = 'wrf_roms_cross_section.png'
 dpi_opt     = 300
-cmap1       = cmocean.cm.thermal # Collor pallete.
+cmap1       = plt.jet()  
+plt.title('Cross-section at 20 °W',fontsize=10)
 
 # No need to change the above.
 
@@ -95,42 +100,42 @@ ax.set_yticks(v_ticks[::wrf_h_spac])
 ax.set_yticklabels(vert_vals[::wrf_h_spac])
 
 # Set the x-axis and  y-axis labels
-ax.set_ylabel("WRF Altitude [m]", fontsize=12)
+ax.set_ylabel("WRF Altitude [m]", fontsize=9)
 
 # ROMS module
 # Set variables
 data   = Dataset(roms_file)
-cs_r   = data.variables[u'Cs_r'][:]
-hc     = data.variables[u'hc'][:]
+cs_r   = data.variables[u's_rho'][:]
+hc     = 25 # hmin
 s_rho  = data.variables[u's_rho'][:]
 N      = len(s_rho)
-rho_pt = data.variables[u'lon_rho'][260,100:300]
-Vtrans = data.variables[u'Vtransform'][:]
-zeta   = data.variables[u'zeta'][roms_time,:,:]
+rho_pt = data.variables[u'lat_rho'][121:243,480]
+Vtrans = 2 # Vtransform
+zeta   = data.variables[u'zeta'][:,:]
 depth  = data.variables[u'h'][:,:]
 lat    = rho_pt.repeat(N)
 lats   = lat.reshape(rho_pt.shape[0],N)
-var0   = data.variables[u'temp'][roms_time,:,260,100:300]
+var0   = data.variables[u'temp'][0,:,121:243,480]
 var    = var0.transpose()
 time   = data.variables['ocean_time']
 
-
 # Calculate the depth (in meters)
 [z]=vgrid.z_r(depth,hc,N,s_rho,cs_r,zeta,Vtrans)
-zz=z[:,260,100:300]
+zz=z[:,121:243,480]
 zt=zz.transpose()
 
 # Setting the initial figure
 fig1 = plt.figure(1,figsize=(12,6))
-ax1 = fig1.add_subplot(gs[1])
+ax1  = fig1.add_subplot(gs[1])
 fig1.tight_layout()
-ax1.set_ylabel('ROMS Depth [m]',fontsize=12)
-ax1.set_xlabel(cxlatlon, fontsize=12)
+ax1.set_ylabel('ROMS Depth [m]',fontsize=9)
+ax1.set_xlabel(cxlatlon, fontsize=9)
 ax1.set_ylim(roms_depth,zt.max())
 
 # Plotting values
-vare    = ax1.contourf(lats,zt,var,clevs,shading='flat',cmap=cmap1)
+vare    = ax1.contourf(lats,zt,var,clevs,shading='flat',cmap=cmap1,extend="both")
 cb      = plt.colorbar(vare,ax=[ax,ax1],label='[C]')
 #cb      = plt.colorbar(vare,shrink=1.0,orientation='horizontal',fraction=0.046, pad=0.04)
-cb.set_label(col_label,fontsize=12)
+cb.set_label(col_label, fontsize=9, color='0.2',labelpad=5)
+cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
 plt.savefig(fig_dir+fig_name,dpi=dpi_opt,bbox_inches='tight')

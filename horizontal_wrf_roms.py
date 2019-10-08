@@ -50,41 +50,8 @@ plt.use('Agg')
 print(bg.da_cyan+'Which project? (1) SC_2008, (2) ATLEQ or (3) Antartic.'+bg.rs)
 project = input()
 if project=='1':
-    print(bg.da_cyan+'Which experiment? (1) -100%, (2) -80%, (3) -60%, (4) -40%, (5), -20%, (6) Normal, (7) +20%, (8) +40%, (9) +60 (10) +80 or (11) +100%.'+bg.rs)
-    exp = input()
-    if exp=='1':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_100/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_100/wrf.nc'
-    if exp=='2':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_80/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_80/wrf.nc'
-    if exp=='3':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_60/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_60/wrf.nc' 
-    if exp=='4':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_40/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_40/wrf.nc' 
-    if exp=='5':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_20/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_20/wrf.nc' 
-    if exp=='6':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf.nc' 
-    if exp=='7':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/ProjetosSC_2008/Outputs/warm_20/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_20/wrf.nc' 
-    if exp=='8':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_40/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_40/wrf.nc'
-    if exp=='9':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_60/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_60/wrf.nc' 
-    if exp=='10':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_80/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_80/wrf.nc' 
-    if exp=='11':
-        roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_100/roms.nc'
-        wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/warm_100/wrf.nc' 
+    roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_100/roms.nc'
+    wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_100/wrf.nc'
     bbox          = [-52.5, -45.5, -30.5, -25.5]
     initloop      = 144
     zlev          = -1 # Last sigma layer corresponds to surface.
@@ -248,6 +215,7 @@ for i in range_loop:
             clevs       = np.arange(0,101,0.1)
             ticks       = np.arange(min(clevs),max(clevs),20) 
             cmap        = cmocean.cm.ice_r
+
     # 3.2. Create a figure.
     if project=='1' or project=='2':
         m = Basemap(projection='merc',llcrnrlat=bbox[2],urcrnrlat=bbox[3],llcrnrlon=bbox[0],urcrnrlon=bbox[1], lat_ts=30,resolution='i')
@@ -303,6 +271,7 @@ for i in range_loop:
             qk = ax.quiverkey(C, .22, -0.25, 0.5, ' Sea Surface Current\n 0.5 m.s⁻¹ ', coordinates='axes',color='black',labelsep=0.05, labelcolor='black',alpha=0.4,fontproperties={'size': '5'})
         if project=='3':
             qk = ax.quiverkey(C, .2, -0.11, 0.5, ' Sea Surface Current\n 0.5 m.s⁻¹ ', coordinates='axes',color='black',labelsep=0.05, labelcolor='black',alpha=0.4,fontproperties={'size': '6'})
+    
     # 3.5. Plot wind speed at 10 meters.
     if plot_wind==True:
         x, y    = m(to_np(lons_wrf), to_np(lats_wrf))
