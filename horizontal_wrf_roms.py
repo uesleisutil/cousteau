@@ -13,10 +13,9 @@ Python:         3.7.1
 Create horizontal plots from ROMS (his) and WRF-ARW outputs, displaying:
     - Sea surface temperature (Contourf; °C);
     - Sea surface salinity (Contourf; PSU);
-    - Latent heat flux (Contourf; W m-2);
+    - Heat fluxes (Contourf; W m-2);
     - 200 and 1000 meters bathymetry (Contour; m);
-    - Wind vectors at 10 m (Vector; m s-1la
-    );
+    - Wind vectors at 10 m (Vector; m s-1);
     - Ocean current at surface (Vector; m s-1);
     - Sea level pressure (Contourf; hPa);
     - Accumulated total precipitation (Contourf; mm);
@@ -43,24 +42,24 @@ from   sty                   import bg, rs
 from   datetime              import datetime
 import pandas                as     pd
 from   progress.bar          import IncrementalBar
-plt.use('Agg')
+matplotlib.use('Agg')
 
 # 2. Customizations.
 
 print(bg.da_cyan+'Which project? (1) SC_2008, (2) ATLEQ or (3) Antartic.'+bg.rs)
 project = input()
 if project=='1':
-    roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_100/roms.nc'
-    wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/cold_sst_100/wrf.nc'
-    bbox          = [-52.5, -45.5, -30.5, -25.5]
+    roms_file = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/roms.nc'
+    wrf_file  = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf.nc'
+    bbox          = [-53, -40, -32, -23]
     initloop      = 144
     zlev          = -1 # Last sigma layer corresponds to surface.
     plot_var      = True 
     plot_bathy    = True
-    plot_currents = True
+    plot_currents = False
     plot_wind     = True
-    plot_slp      = True
-    create_video  = True
+    plot_slp      = False
+    create_video  = False
     ppt_fig       = False # If True, it will generate a figure with transparent background.
     nc_roms       = netCDF4.Dataset(roms_file)
     nc_wrf        = netCDF4.Dataset(wrf_file)
@@ -75,7 +74,7 @@ if project=='2':
     plot_var      = True 
     plot_bathy    = False
     plot_currents = False
-    plot_wind     = False
+    plot_wind     = True
     plot_slp      = False
     create_video  = True
     ppt_fig       = False
@@ -109,7 +108,7 @@ if project =='3':
     contourf_var  = input() 
 
 # 3. Start looping through time
-range_loop = [i for i in range(168,ntimes,1)]
+range_loop = [i for i in range(0,ntimes,1)]
 bar        = IncrementalBar(bg.da_cyan+'Creating figures:'+bg.rs, max=len(range_loop))
 for i in range_loop:
 #for i in range(0,1):
@@ -144,36 +143,16 @@ for i in range_loop:
         v           = shrink(v, mask.shape) # Average V points to rho points.
         u, v        = rot2d(u, v, ang) # Rotate grid oriented U and V to East and West.
     if plot_var==True:
-        if project=='1' and contourf_var=='1':
+        if  contourf_var=='1':
             lon_rho     = nc_roms.variables['lon_rho'][:]
             lat_rho     = nc_roms.variables['lat_rho'][:]
             i0,i1,j0,j1 = bbox2ij(lon_rho,lat_rho,bbox)
             lon_var     = lon_rho[j0:j1, i0:i1]
             lat_var     = lat_rho[j0:j1, i0:i1]
             var         = nc_roms.variables['temp'][i, zlev,  j0:j1, i0:i1]
-            clevs       = np.arange(19,25.1,0.01)
+            clevs       = np.arange(16,25.1,0.01)
             ticks       = np.arange(min(clevs),max(clevs),1)  
             cmap        = cmocean.cm.thermal   
-        if project=='2' and contourf_var=='2':
-            lon_rho     = nc_roms.variables['lon_rho'][:]
-            lat_rho     = nc_roms.variables['lat_rho'][:]
-            i0,i1,j0,j1 = bbox2ij(lon_rho,lat_rho,bbox)
-            lon_var     = lon_rho[j0:j1, i0:i1]
-            lat_var     = lat_rho[j0:j1, i0:i1]
-            var        = nc_roms.variables['temp'][i, zlev,  j0:j1, i0:i1]
-            clevs       = np.arange(19,31.1,0.01)
-            ticks       = np.arange(min(clevs),max(clevs),1)  
-            cmap        = matplotlib.pyplot.jet()  
-        if project=='3' and contourf_var=='1':
-            lon_rho     = nc_roms.variables['lon_rho'][:]
-            lat_rho     = nc_roms.variables['lat_rho'][:]
-            i0,i1,j0,j1 = bbox2ij(lon_rho,lat_rho,bbox)
-            lon_var     = lon_rho[j0:j1, i0:i1]
-            lat_var     = lat_rho[j0:j1, i0:i1]
-            var         = nc_roms.variables['temp'][i, zlev,  j0:j1, i0:i1]
-            clevs       = np.arange(-4,8.1,0.01)
-            ticks       = np.arange(min(clevs),max(clevs),2)  
-            cmap        = matplotlib.pyplot.jet()     
         if contourf_var=='2':
             i0,i1,j0,j1 = bbox2ij(lon_rho,lat_rho,bbox)
             lon_rho = nc_roms.variables['lon_rho'][:]
@@ -185,14 +164,20 @@ for i in range_loop:
             cmap    = matplotlib.pyplot.viridis()  
             ticks   = np.array([31,32,33,34,35,36,37,38])
         if contourf_var=='3':
+            #rainnc0  = nc_wrf.variables['RAINNC'][i-1,:,:]
+            #rainc0   = nc_wrf.variables['RAINC'][i-1,:,:]            
+            #rainnc1  = nc_wrf.variables['RAINNC'][i,:,:]
+            #rainc1   = nc_wrf.variables['RAINC'][i,:,:]
+            #rainnc   = rainnc1-rainnc0
+            #rainc    = rainc1-rainc0
             rainnc   = nc_wrf.variables['RAINNC'][i,:,:]
-            rainc    = nc_wrf.variables['RAINC'][i,:,:]
-            lat_rain = nc_wrf.variables['XLAT'][i,:,0]
-            lon_rain = nc_wrf.variables['XLONG'][i,0,:]
-            var      = rainnc+rainc    
-            clevs    = np.arange(0,501,5)
-            ticks    = np.array([0,100,200,300,400,500])  
-            cmap     = matplotlib.pyplot.jet()  #cmocean.cm.rain    
+            rainc    = nc_wrf.variables['RAINC'][i,:,:]                
+            var      = rainnc+rainc
+            var1     = getvar(nc_wrf, "pw", i)
+            lat_rain, lon_rain = latlon_coords(var1)      
+            clevs    = np.arange(0,300,5)
+            ticks    = np.array([0,50,100,150,200,250,300])  
+            cmap     = cmocean.cm.rain    
         if contourf_var=='4': 
             lon_rho     = nc_roms.variables['lon_rho'][:]
             lat_rho     = nc_roms.variables['lat_rho'][:]
@@ -248,15 +233,16 @@ for i in range_loop:
         m.drawcountries(color = '#000000')
         m.drawcoastlines(color = '#000000')
     else:
-        m.fillcontinents(color = '#000000')
-        m.drawcountries(color = '#ffffff',linewidth=0.5)
-        m.drawcoastlines(color = '#ffffff',linewidth=0.5)
+        m.fillcontinents(color = '#ffffff')
+        m.drawcountries(color = '#000000',linewidth=0.5)
+        m.drawcoastlines(color = '#000000',linewidth=0.5)
+        m.drawstates(color = '#000000',linewidth=0.5)       
 
     # 3.4. Plot Current vector.
     if plot_currents==True:
         x_rho, y_rho = m(lon,lat)
         if project=='1':
-            nsub  = 15
+            nsub  = 20
             scale = 0.065
         if project=='2':
             nsub  = 20
@@ -266,7 +252,7 @@ for i in range_loop:
             scale = 0.07          
         C = ax.quiver(x_rho[::nsub,::nsub],y_rho[::nsub,::nsub],u[::nsub,::nsub],v[::nsub,::nsub],alpha=0.5,scale=1/scale, zorder=1e35, width=0.0025,color='black',pivot='middle')
         if project=='1':
-            qk = ax.quiverkey(C, .215, -0.15, 0.5, ' Sea Surface Current\n 0.5 m.s⁻¹ ', coordinates='axes',color='black',labelsep=0.05, labelcolor='black',alpha=0.4,fontproperties={'size': '9'})
+            qk = ax.quiverkey(C, .215, -0.15, 0.5, ' Sea Surface Current\n 0.5 m.s⁻¹ ', coordinates='axes',color='#444444',labelsep=0.05, labelcolor='black',alpha=1,fontproperties={'size': '9'})
         if project=='2':
             qk = ax.quiverkey(C, .22, -0.25, 0.5, ' Sea Surface Current\n 0.5 m.s⁻¹ ', coordinates='axes',color='black',labelsep=0.05, labelcolor='black',alpha=0.4,fontproperties={'size': '5'})
         if project=='3':
@@ -276,7 +262,7 @@ for i in range_loop:
     if plot_wind==True:
         x, y    = m(to_np(lons_wrf), to_np(lats_wrf))
         if project=='1':
-            spacing = 35
+            spacing = 7
             scale   = 0.03
         if project=='2':
             spacing = 40
@@ -286,7 +272,7 @@ for i in range_loop:
             scale   = 0.02
         W = ax.quiver(x[::spacing,::spacing], y[::spacing,::spacing], to_np(uvmet10[0,::spacing, ::spacing]),to_np(uvmet10[1,::spacing, ::spacing]),pivot='middle',scale=8/scale, zorder=1e35, width=0.005,color='gray',headlength=3, headaxislength=2.8 )
         if project=='1':
-            wk = ax.quiverkey(W, 0.76, -0.15, 10, ' Wind Vector at 10 m\n 10 m.s⁻¹ ', coordinates='axes',color='#444444',labelsep=0.05, labelcolor='black',fontproperties={'size': '9'})
+            wk = ax.quiverkey(W, 0.76, -0.15, 10, 'Wind Vector at 10 m\n 10 m.s⁻¹ ', coordinates='axes',color='black',labelsep=0.05, alpha=0.5,labelcolor='black',fontproperties={'size': '9'})
         if project=='2':
             wk = ax.quiverkey(W, .75, -.25, 10, ' Wind Vector at 10 m\n 10 m.s⁻¹ ', coordinates='axes',color='#444444',labelsep=0.05, labelcolor='black',fontproperties={'size': '5'})
         if project=='3':
@@ -297,7 +283,7 @@ for i in range_loop:
         bathy_levels     = [-1000,-200]
         bLON,bLAT,BAT    = download_bathy(lnd=bbox[0],lnu=-39,ltd=bbox[2],ltu=bbox[3])
         Ct               = m.contour(gaussian_filter(bLON,3),gaussian_filter(bLAT,3),gaussian_filter(BAT,3),bathy_levels,colors='black',latlon=True,linewidths=0.3,linestyles='solid')
-        manual_locations = [(470976,117920), (418411,117920)]
+        manual_locations = [(411291,138582), (304620,57927)]
         clbls            = plt.clabel(Ct,fmt='%i', fontsize=9,manual=manual_locations)
 
     # 3.7. Plot the desired countour variable and add some plot resources.
@@ -319,33 +305,33 @@ for i in range_loop:
             cb.set_label(r'Sea Surface Temperature [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=0)
             cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
             cb.set_ticks(ticks)
-
         if contourf_var=='2':
             h1  = m.contourf(lon_var, lat_var, var, clevs,latlon=True,cmap=cmap)  
-            cax = fig.add_axes([0.37, 0.19, 0.27, 0.025])     
+            cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])   
             cb  = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
-            cb.set_label(r'Sea Surface Salinity [PSU]', fontsize=5, color='0.2',labelpad=-0.5)
+            cb.set_label(r'Sea Surface Salinity [PSU]', fontsize=9, color='0.2',labelpad=-0)
             cb.ax.tick_params(labelsize=5, length=2, color='0.2', labelcolor='0.2',direction='in') 
             cb.set_ticks(ticks)
         if contourf_var=='3':
-            h1  = ax.contourf(lon_rain, lat_rain, var, clevs,latlon=True,cmap=cmap)  
-            cax = fig.add_axes([0.37, 0.19, 0.27, 0.025])     
+            x1, y1    = m(to_np(lon_rain), to_np(lat_rain))
+            h1  = ax.contourf(x1, y1, to_np(var), clevs,cmap=cmap,latlon=True)  
+            cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])     
             cb  = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
-            cb.set_label(r'Accumulated precipitation [mm]', fontsize=5, color='0.2',labelpad=-0.5)
-            cb.ax.tick_params(labelsize=5, length=2, color='0.2', labelcolor='0.2',direction='in') 
-            cb.set_ticks(ticks)  
+            cb.set_label(r'Accumulated Precipitation[mm]', fontsize=9, color='0.2',labelpad=0)
+            cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
+            cb.set_ticks(ticks)
         if contourf_var=='4':
             h1  = m.contourf(lon_var, lat_var, var, clevs,latlon=True,cmap=cmap)  
-            cax = fig.add_axes([0.37, 0.19, 0.27, 0.025])     
+            cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])   
             cb  = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
-            cb.set_label(r'Heat Fluxes [W m.s⁻²]', fontsize=5, color='0.2',labelpad=-0.5)
+            cb.set_label(r'Heat Fluxes [W m.s⁻²]', fontsize=9, color='0.2',labelpad=-0)
             cb.ax.tick_params(labelsize=5, length=2, color='0.2', labelcolor='0.2',direction='in') 
             cb.set_ticks(ticks)
         if contourf_var=='5':
             h1  = m.contourf(lon_var, lat_var, var, clevs,latlon=True,cmap=cmap,extend="both")  
-            cax = fig.add_axes([0.37, 0.1205, 0.27, 0.025]) 
+            cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])   
             cb  = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
-            cb.set_label(r'Fractional sea ice cover [%]', fontsize=9, color='0.2',labelpad=-0.5)
+            cb.set_label(r'Fractional sea ice cover [%]', fontsize=9, color='0.2',labelpad=-0)
             cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
             cb.set_ticks(ticks)  
 
