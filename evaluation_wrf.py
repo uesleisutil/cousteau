@@ -13,8 +13,7 @@ Python:         3.7.1
 Evaluate WRF output using:
     - Bias (Contour);
     - Root Mean Square Error (RMSE; Contour);
-    - Normalized Root Mean Square Error (NRMSE; Contour);
-    - Mean Absolute Error (MAE; Contour);
+    - Mean Absolute Percentage Error (MAPE; Contour);
 
 Compare: 
     - ERA5 (Hersbach et al., 2018; https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=overview):
@@ -47,47 +46,41 @@ import os
 matplotlib.use('Agg')
 
 # Customizations.
-bbox                = [-53, -40, -32, -23]
-lonbounds           = [-53,-40] 
-latbounds           = [-32,-23]
-wrf_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_ts.nc'
-wrf_file_cfsr     = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_6h_ncks.nc'
-era_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ERA5/era5.nc'
-cfsr_file         = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/CFSR/cfsr.nc'
+bbox            = [-53,-40,-32,-23]
+lonbounds       = [-53,-40] 
+latbounds       = [-32,-23]
+wrf_file        = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_ts.nc'
+wrf_file_cfsr   = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_6h_ncks.nc'
+era_file        = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ERA5/era5_novo.nc'
+cfsr_file       = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/CFSR/cfsr.nc'
 
-clevs_bias_t2     = np.arange(-6,6.5,0.01)
-ticks_bias_t2     = np.arange(min(clevs_bias_t2),max(clevs_bias_t2),2)
-clevs_rmse_t2     = np.arange(0,15.05,0.01)
-ticks_rmse_t2     = np.arange(min(clevs_rmse_t2),max(clevs_rmse_t2),1)
-clevs_nrmse_t2    = np.arange(0,0.405,0.001)
-ticks_nrmse_t2    = np.arange(min(clevs_nrmse_t2),max(clevs_nrmse_t2),0.05)
-clevs_mae_t2      = np.arange(0,8.02,0.01)
-ticks_mae_t2      = np.arange(min(clevs_mae_t2),max(clevs_mae_t2),1)
+clevs_rmse_t2   = np.arange(0,5.05,0.01)
+ticks_rmse_t2   = np.arange(min(clevs_rmse_t2),max(clevs_rmse_t2),1)
+clevs_mape_t2   = np.arange(0,18.02,0.01)
+ticks_mape_t2   = np.arange(min(clevs_mape_t2),max(clevs_mape_t2),2)
+clevs_bias_t2   = np.arange(-3,3.1,0.01)
+ticks_bias_t2   = np.arange(min(clevs_bias_t2),max(clevs_bias_t2),1)
 
-clevs_bias_wind   = np.arange(-5,4.1,0.01)
-ticks_bias_wind   = np.arange(min(clevs_bias_wind),max(clevs_bias_wind),1)
-clevs_rmse_wind   = np.arange(0,6.1,0.01)
-ticks_rmse_wind   = np.arange(min(clevs_rmse_wind),max(clevs_rmse_wind),1)
-clevs_nrmse_wind  = np.arange(0,3.03,0.001)
-ticks_nrmse_wind  = np.arange(min(clevs_nrmse_wind),max(clevs_nrmse_wind),0.3)
-clevs_mae_wind    = np.arange(0,5.02,0.01)
-ticks_mae_wind    = np.arange(min(clevs_mae_wind),max(clevs_mae_wind),1)
+clevs_rmse_wind = np.arange(0,4.1,0.01)
+ticks_rmse_wind = np.arange(min(clevs_rmse_wind),max(clevs_rmse_wind),1)
+clevs_mape_wind = np.arange(0,101,0.2)
+ticks_mape_wind = np.arange(min(clevs_mape_wind),max(clevs_mape_wind),20)
+clevs_bias_wind = np.arange(-2,9.1,0.1)
+ticks_bias_wind = np.arange(min(clevs_bias_wind),max(clevs_bias_wind),1)
 
-clevs_bias_slp    = np.arange(-10,4.1,0.01)
-ticks_bias_slp    = np.arange(min(clevs_bias_slp),max(clevs_bias_slp),1)
-clevs_rmse_slp    = np.arange(0,14.1,0.01)
-ticks_rmse_slp    = np.arange(min(clevs_rmse_slp),max(clevs_rmse_slp),1)
-clevs_nrmse_slp   = np.arange(0,1.03,0.001)
-ticks_nrmse_slp   = np.arange(min(clevs_nrmse_slp),max(clevs_nrmse_slp),0.3)
-clevs_mae_slp     = np.arange(0,14.02,0.01)
-ticks_mae_slp     = np.arange(min(clevs_mae_slp),max(clevs_mae_slp),1)
+clevs_rmse_slp  = np.arange(0,1.71,0.01)
+ticks_rmse_slp  = np.arange(min(clevs_rmse_slp),max(clevs_rmse_slp),0.7)
+clevs_mape_slp  = np.arange(0,14.02,0.01)
+ticks_mape_slp  = np.arange(min(clevs_mape_slp),max(clevs_mape_slp),1)
+clevs_bias_slp  = np.arange(-10,4.1,0.01)
+ticks_bias_slp  = np.arange(min(clevs_bias_slp),max(clevs_bias_slp),1)
 
 print('Which data? (1) ERA5 or (2) CFSR?')      
 dataset  = input()
 
 if dataset == '1':
     print('Evaluate which WRF-ARW variable? (1) Temperature at 2 meters, (2) Wind Speed at 10m, (3) Sea Level Pressure?')
-    contourf_var  = input()
+    contourf_var = input()
     if contourf_var == '1':
         nc_era      = netCDF4.Dataset(era_file)
         lon_era     = nc_era.variables['longitude'][:]-360
@@ -135,13 +128,13 @@ if dataset == '1':
    
     if contourf_var=='2':
         nc_era      = netCDF4.Dataset(era_file)
-        lon_era     = nc_era.variables['longitude'][:]-180
+        lon_era     = nc_era.variables['longitude'][:]-360
         lat_era     = nc_era.variables['latitude'][:]
         latli       = np.argmin(np.abs(lat_era-latbounds[1]))
         latui       = np.argmin(np.abs(lat_era-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_era-lonbounds[0]))
         lonui       = np.argmin(np.abs(lon_era-lonbounds[1]))  
-        lon_era     = nc_era.variables['longitude'][lonli:lonui]-180
+        lon_era     = nc_era.variables['longitude'][lonli:lonui]-360
         lat_era     = nc_era.variables['latitude'][latli:latui]
         lon_era,lat_era = np.meshgrid(lon_era,lat_era)
         era_lat_len = len(lat_era[:,0])
@@ -167,7 +160,7 @@ if dataset == '1':
         lon_wrf     = lon_wrf[lonli:lonui]
         lat_wrf     = lat_wrf[latui:latli]
         lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = len(nc_wrf.variables['Times'][168:409])
+        wrf_loop    = len(nc_wrf.variables['LH'][:,0,0])
         wrf_lat_len = len(lat_wrf[:,0])
         wrf_lon_len = len(lon_wrf[0,:])
 
@@ -190,13 +183,13 @@ if dataset == '1':
 
     if contourf_var=='3':
         nc_era      = netCDF4.Dataset(era_file)
-        lon_era     = nc_era.variables['longitude'][:]-180
+        lon_era     = nc_era.variables['longitude'][:]-360
         lat_era     = nc_era.variables['latitude'][:]
         latli       = np.argmin(np.abs(lat_era-latbounds[1]))
         latui       = np.argmin(np.abs(lat_era-latbounds[0])) 
         lonli       = np.argmin(np.abs(lon_era-lonbounds[0]))
         lonui       = np.argmin(np.abs(lon_era-lonbounds[1]))  
-        lon_era     = nc_era.variables['longitude'][lonli:lonui]-180
+        lon_era     = nc_era.variables['longitude'][lonli:lonui]-360
         lat_era     = nc_era.variables['latitude'][latli:latui]
         lon_era,lat_era = np.meshgrid(lon_era,lat_era)
         era_lat_len = len(lat_era[:,0])
@@ -220,7 +213,7 @@ if dataset == '1':
         lon_wrf     = lon_wrf[lonli:lonui]
         lat_wrf     = lat_wrf[latui:latli]
         lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = len(nc_wrf.variables['Times'][:])
+        wrf_loop    = len(nc_wrf.variables['LH'][:,0,0])
         wrf_lat_len = len(lat_wrf[:,0])
         wrf_lon_len = len(lon_wrf[0,:])
         orig_def    = pyresample.geometry.SwathDefinition(lons=lon_wrf, lats=lat_wrf)
@@ -268,7 +261,7 @@ if dataset == '2':
         lon_wrf     = lon_wrf[lonli:lonui]
         lat_wrf     = lat_wrf[latui:latli]
         lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = nc_wrf.variables['Times'][:]
+        wrf_loop    = nc_wrf.variables['LH'][:,0,0]
         wrf_loop    = len(wrf_loop)
         wrf_lat_len = len(lat_wrf[:,0])
         wrf_lon_len = len(lon_wrf[0,:])
@@ -380,26 +373,21 @@ if dataset == '2':
             bar.next()
         bar.finish() 
 
-print('Which statistical metric? (1) Bias, (2) RMSE, (3) NRMSE or (4) MAE.')
+print('Which statistical metric? (1) Root Mean Square Error, (2) Mean Absolute Error or (3) Bias.')
 metric  = input()
 if metric=='1':
-    val = expected-observed
-    val = np.nanmean(val,axis=(0))
-if metric=='2':
-    differences                 = expected-observed
-    differences_squared         = differences ** 2 
+    differences         = expected-observed
+    differences_squared = differences ** 2 
     mean_of_differences_squared = np.average(differences_squared,axis=0)
-    val                         = np.sqrt(mean_of_differences_squared)
-if metric=='3':
-    differences                 = expected-observed
-    differences_squared         = differences ** 2 
-    mean_of_differences_squared = np.average(differences_squared,axis=0)
-    rmse                        = np.sqrt(mean_of_differences_squared)
-    val                         = rmse/np.nanmean(observed,axis=0)
-if metric=='4':
-    error = expected-observed
-    val   = np.nanmean(np.abs(error),axis=0)
+    val                 = np.sqrt(mean_of_differences_squared)
 
+if metric=='2':
+    val = np.abs((observed-expected)/observed).mean(axis=0)*100
+
+if metric=='3':
+    expected1 = np.average(expected,axis=0) 
+    observed1 = np.average(observed,axis=0)
+    val       = expected1-observed1
 
 # Create and plot map.
 m    = Basemap(projection='merc',llcrnrlat=bbox[2],urcrnrlat=bbox[3],llcrnrlon=bbox[0],urcrnrlon=bbox[1], lat_ts=30,resolution='i')
@@ -413,51 +401,42 @@ m.drawcountries(color = '#000000',linewidth=0.5)
 m.drawcoastlines(color = '#000000',linewidth=0.5)
 
 if metric=='1' and contourf_var=='1':
-    clevs = clevs_bias_t2
-    ticks = ticks_bias_t2
-if metric=='2' and contourf_var=='1':
     clevs = clevs_rmse_t2
     ticks = ticks_rmse_t2
+if metric=='2' and contourf_var=='1':
+    clevs = clevs_mape_t2
+    ticks = ticks_mape_t2
 if metric=='3' and contourf_var=='1':
-    clevs = clevs_nrmse_t2
-    ticks = ticks_nrmse_t2
-if metric=='4' and contourf_var=='1':
-    clevs = clevs_mae_t2
-    ticks = ticks_mae_t2
+    clevs = clevs_bias_t2
+    ticks = ticks_bias_t2
 if metric=='1' and contourf_var=='2':
-    clevs = clevs_bias_wind
-    ticks = ticks_bias_wind
-if metric=='2' and contourf_var=='2':
     clevs = clevs_rmse_wind
     ticks = ticks_rmse_wind
+if metric=='2' and contourf_var=='2':
+    clevs = clevs_mape_wind
+    ticks = ticks_mape_wind
 if metric=='3' and contourf_var=='2':
-    clevs = clevs_nrmse_wind
-    ticks = ticks_nrmse_wind
-if metric=='4' and contourf_var=='2':
-    clevs = clevs_mae_wind
-    ticks = ticks_mae_wind
+    clevs = clevs_bias_wind
+    ticks = ticks_bias_wind
 if metric=='1' and contourf_var=='3':
-    clevs = clevs_bias_slp
-    ticks = ticks_bias_slp
-if metric=='2' and contourf_var=='3':
     clevs = clevs_rmse_slp
     ticks = ticks_rmse_slp
+if metric=='2' and contourf_var=='3':
+    clevs = clevs_mape_slp
+    ticks = ticks_mape_slp
 if metric=='3' and contourf_var=='3':
-    clevs = clevs_nrmse_slp
-    ticks = ticks_nrmse_slp
-if metric=='4' and contourf_var=='3':
-    clevs = clevs_mae_slp
-    ticks = ticks_mae_slp
+    clevs = clevs_bias_slp
+    ticks = ticks_bias_slp
 
 if dataset == '1':
-    if metric=='2' or metric=='3' or metric == '4':
-        cmap  = matplotlib.pyplot.jet()
+    if metric=='1' or metric=='2':
+        cmap  = cmocean.cm.thermal
         h1    = m.contourf(lon_era, lat_era, val, clevs,latlon=True,cmap=cmap,extend="both")
-    if metric=='1':
+    if metric=='3':
         cmap  = cmocean.cm.balance
         h1    = m.contourf(lon_era, lat_era, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both")          
 if dataset =='2':
-    if metric=='2' or metric=='3' or metric == '4':
+    if metric=='2' or metric=='3':
         cmap  = matplotlib.pyplot.jet()
         h1    = m.contourf(lon_cfsr, lat_cfsr, val, clevs,latlon=True,cmap=cmap)   
     if metric=='1':
@@ -469,36 +448,28 @@ cb    = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shr
 
 if metric=='1':
     if contourf_var=='1':
-        cb.set_label(r'Air Temperature at 2 meters Bias [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=0)
+        cb.set_label(r'Air Temperature at 2 meters Root Mean Square Error [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=0)
     if contourf_var=='2':
-        cb.set_label(r'Wind Speed at 10 meters Bias [m.s⁻¹]', fontsize=9, color='0.2',labelpad=0)
+        cb.set_label(r'Wind Speed at 10 meters Root Mean Square Error [m.s⁻¹]', fontsize=9, color='0.2',labelpad=0)
     if contourf_var=='3':
-         cb.set_label(r'Sea Level Pressure Bias [hPa]', fontsize=9, color='0.2',labelpad=0) 
+         cb.set_label(r'Sea Level Pressure Root Mean Square Error [hPa]', fontsize=9, color='0.2',labelpad=0) 
             
 if metric=='2':
     if contourf_var=='1':
-        cb.set_label(r'Air Temperature at 2 meters Root Mean Square Error [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.2)
+        cb.set_label(r'Air Temperature at 2 meters Mean Absolute Percentage Error [%]', fontsize=9, color='0.2',labelpad=-0.2)
     if contourf_var=='2':
-        cb.set_label(r'Wind Speed at 10 meters Root Mean Square Error [m.s⁻¹]', fontsize=5, color='0.2',labelpad=-0.2)
+        cb.set_label(r'Wind Speed at 10 meters Mean Absolute Percentage Error [%]', fontsize=9, color='0.2',labelpad=-0.2)
     if contourf_var=='3':
-        cb.set_label(r'Sea Level Pressure Root Mean Square Error [hPa]', fontsize=5, color='0.2',labelpad=-0.2)  
+        cb.set_label(r'Sea Level Pressure Mean Absolute Percentage Error [%]', fontsize=9, color='0.2',labelpad=-0.2)  
           
 if metric=='3':
     if contourf_var=='1':
-        cb.set_label(r'Air Temperature at 2 meters Normalized Root Mean Square Error [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.2)
+        cb.set_label(r'Air Temperature at 2 meters Bias [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=-0.2)
     if contourf_var=='2':
-        cb.set_label(r'Wind Speed at 10 meters Normalized Root Mean Square Error [m.s⁻¹]', fontsize=5, color='0.2',labelpad=-0.2)
+        cb.set_label(r'Wind Speed at 10 meters Bias [m.s⁻¹]', fontsize=9, color='0.2',labelpad=-0.2)
     if contourf_var=='3':
-        cb.set_label(r'Sea Level Pressure Normalized Root Mean Square Error [hPa]', fontsize=5, color='0.2',labelpad=-0.2)  
+        cb.set_label(r'Sea Level Pressure Bias [hPa]', fontsize=9, color='0.2',labelpad=-0.2)  
             
-if metric=='4':
-    if contourf_var=='1':
-        cb.set_label(r'Air Temperature at 2 meters Mean Absolute Error [$^\circ\!$C]', fontsize=5, color='0.2',labelpad=-0.2)
-    if contourf_var=='2':
-        cb.set_label(r'Wind Speed at 10 meters Mean Absolute Error [m.s⁻¹]', fontsize=5, color='0.2',labelpad=-0.2)
-    if contourf_var=='3':
-        cb.set_label(r'Sea Level Pressure Mean Absolute Error [hPa]', fontsize=5, color='0.2',labelpad=-0.2)  
-
 cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
 cb.set_ticks(ticks)
 try:
@@ -506,51 +477,38 @@ try:
 except FileExistsError:
     pass 
 if metric == '1' and dataset == '1' and contourf_var == '1':
-        plt.savefig('./wrf_evaluation/t2_bias_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '1' and dataset == '1' and contourf_var == '2':
-        plt.savefig('./wrf_evaluation/wind_bias_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '1' and dataset == '1' and contourf_var == '3':
-        plt.savefig('./wrf_evaluation/slp_bias_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '2' and dataset == '1' and contourf_var == '1':
         plt.savefig('./wrf_evaluation/t2_rmse_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '2' and dataset == '1' and contourf_var == '2':
+if metric == '1' and dataset == '1' and contourf_var == '2':
         plt.savefig('./wrf_evaluation/wind_rmse_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+if metric == '1' and dataset == '1' and contourf_var == '3':
+        plt.savefig('./wrf_evaluation/slp_rmse_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+if metric == '2' and dataset == '1' and contourf_var == '1':
+        plt.savefig('./wrf_evaluation/t2_mape_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+if metric == '2' and dataset == '1' and contourf_var == '2':
+        plt.savefig('./wrf_evaluation/wind_mape_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
 if metric == '2' and dataset == '1' and contourf_var == '3':
-        plt.savefig('./wrf_evaluation/slp_rmse_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+        plt.savefig('./wrf_evaluation/slp_mape_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)   
 if metric == '3' and dataset == '1' and contourf_var == '1':
-        plt.savefig('./wrf_evaluation/t2_nrmse_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+        plt.savefig('./wrf_evaluation/t2_bias_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
 if metric == '3' and dataset == '1' and contourf_var == '2':
-        plt.savefig('./wrf_evaluation/wind_nrmse_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+        plt.savefig('./wrf_evaluation/wind_bias_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
 if metric == '3' and dataset == '1' and contourf_var == '3':
-        plt.savefig('./wrf_evaluation/slp_nrmse_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '4' and dataset == '1' and contourf_var == '1':
-        plt.savefig('./wrf_evaluation/t2_mae_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '4' and dataset == '1' and contourf_var == '2':
-        plt.savefig('./wrf_evaluation/wind_mae_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '4' and dataset == '1' and contourf_var == '3':
-        plt.savefig('./wrf_evaluation/slp_mae_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)    
+        plt.savefig('./wrf_evaluation/slp_bias_wrf_era5.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
 if metric == '1' and dataset == '2' and contourf_var == '1':
-        plt.savefig('./wrf_evaluation/t2_bias_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '1' and dataset == '2' and contourf_var == '2':
-        plt.savefig('./wrf_evaluation/wind_bias_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '1' and dataset == '2' and contourf_var == '3':
-        plt.savefig('./wrf_evaluation/slp_bias_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '2' and dataset == '2' and contourf_var == '1':
         plt.savefig('./wrf_evaluation/t2_rmse_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '2' and dataset == '2' and contourf_var == '2':
+if metric == '1' and dataset == '2' and contourf_var == '2':
         plt.savefig('./wrf_evaluation/wind_rmse_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+if metric == '1' and dataset == '2' and contourf_var == '3':
+        plt.savefig('./wrf_evaluation/slp_rmse_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+if metric == '2' and dataset == '2' and contourf_var == '1':
+        plt.savefig('./wrf_evaluation/t2_mape_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+if metric == '2' and dataset == '2' and contourf_var == '2':
+        plt.savefig('./wrf_evaluation/wind_mape_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
 if metric == '2' and dataset == '2' and contourf_var == '3':
-        plt.savefig('./wrf_evaluation/slp_rmse_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+        plt.savefig('./wrf_evaluation/slp_mape_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
 if metric == '3' and dataset == '2' and contourf_var == '1':
-        plt.savefig('./wrf_evaluation/t2_nrmse_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+        plt.savefig('./wrf_evaluation/t2_bias_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
 if metric == '3' and dataset == '2' and contourf_var == '2':
-        plt.savefig('./wrf_evaluation/wind_nrmse_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+        plt.savefig('./wrf_evaluation/wind_bias_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
 if metric == '3' and dataset == '2' and contourf_var == '3':
-        plt.savefig('./wrf_evaluation/slp_nrmse_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '4' and dataset == '2' and contourf_var == '1':
-        plt.savefig('./wrf_evaluation/t2_mae_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '4' and dataset == '2' and contourf_var == '2':
-        plt.savefig('./wrf_evaluation/wind_mae_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
-if metric == '4' and dataset == '2' and contourf_var == '3':
-        plt.savefig('./wrf_evaluation/slp_mae_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)      
-
+        plt.savefig('./wrf_evaluation/slp_bias_wrf_cfsr.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
