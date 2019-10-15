@@ -10,7 +10,7 @@ Version:        2.0
 License:        GPL
 Python:         3.7.1
 
-Evaluate ROMS output using Root-Mean-Square-Error (RMSE; Contour) and Mean-Absolute-Error (MAE; Contour).
+Evaluate ROMS output using Root-Mean-Square-Error (RMSE; Contour), Mean-Absolute-Percentage-Error (MAPE; Contour) and Bias(Contour):
 Compare: 
          - MUR (Chin et al., 2017; https://podaac.jpl.nasa.gov/Multi-scale_Ultra-high_Resolution_MUR-SST):
            Sea Surface Temperature (°C)
@@ -53,20 +53,25 @@ matplotlib.use("Agg")
 print(bg.da_cyan+'Which project? (1) SC_2008, (2) ATLEQ or (3) Antartic.'+bg.rs)
 project = input()
 if project =='1':
-    bbox                = [-52.5, -45.5, -30.5, -25.5]
-    lonbounds           = [-52.5,-45.5] 
-    latbounds           = [-30.5,-25.5]
+    bbox                = [-53, -40, -32, -23]
+    lonbounds           = [-53,-40] 
+    latbounds           = [-32,-23]
+
     clevs_rmse_sst      = np.arange(0,3.51,0.01)
     ticks_rmse_sst      = np.array([0,0.5,1,1.5,2,2.5,3,3.5,4]) 
-    clevs_mae_sst       = np.arange(-3,3.01,0.01)
-    ticks_mae_sst       = np.array([-3,-2,-1,0,1,2,3]) 
+    clevs_mape_sst      = np.arange(0,21,0.1)
+    ticks_mape_sst      = np.array([0,5,10,15,20]) 
+    clevs_bias_sst      = np.arange(-4,4.01,0.01)
+    ticks_bias_sst      = np.array([-4,-3,-2,-1,0,1,2,3,4]) 
 
     clevs_rmse_cur      = np.arange(0,0.751,0.01)
     ticks_rmse_cur      = np.array([0,0.25,0.50,0.75]) 
-    clevs_mae_cur       = np.arange(-0.51,0.51,0.01)
-    ticks_mae_cur       = np.array([0.5,-0.25,0,0.25,0.5]) 
+    clevs_mape_cur      = np.arange(0,51,0.1)
+    ticks_mape_cur      = np.array([0,5,10,15,20,25,30,35,40,45,50]) 
+    clevs_bias_cur      = np.arange(-0.51,0.51,0.01)
+    ticks_bias_cur      = np.array([0.5,-0.25,0,0.25,0.5])    
 
-    roms_mur_glorys_dir = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/roms_mur_glorys_eval.nc'
+    roms_mur_glorys_dir = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/roms_ts_daymean.nc'
     roms_oscar_dir      = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/roms_oscar_eval.nc'
     mur_dir             = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/MUR/mur.nc' 
     glorys_dir          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/Glorys/glorys.nc'  
@@ -181,26 +186,33 @@ if contourf_var=='1':
             bar.next()
         bar.finish()
 
-    print(bg.da_cyan+'Which statistical metric? (1) Root Mean Square Error or (2) Mean Absolute Error.'+bg.rs)
+    print(bg.da_cyan+'Which statistical metric? (1) Root Mean Square Error, (2) Mean Absolute Error or (3) Bias.'+bg.rs)
     metric  = input()
     if metric=='1':
         if choose_data == '1':
-            differences         = temp_roms2 - temp_mur2
+            differences         = temp_roms2-temp_mur2
             differences_squared = differences ** 2 
             mean_of_differences_squared = np.average(differences_squared,axis=0)
             val                 = np.sqrt(mean_of_differences_squared)
         if choose_data == '2':
-            differences         = temp_roms2 - temp_glorys2
+            differences         = temp_roms2-temp_glorys2
             differences_squared = differences ** 2 
             mean_of_differences_squared = np.average(differences_squared,axis=0)
             val                 = np.sqrt(mean_of_differences_squared)
     if metric=='2':
         if choose_data =='1':
-            differences = temp_roms2 - temp_mur2
-            val         = np.average(differences,axis=0)
+            val = np.abs((temp_mur2-temp_roms2)/temp_mur).mean(axis=0)*100
         if choose_data =='2':
-            differences = temp_roms2 - temp_glorys2
-            val         = np.average(differences,axis=0)
+            val = np.abs((temp_glorys2 - temp_roms2) / temp_glorys2).mean(axis=0)*100 
+    if metric=='3':
+        if choose_data =='1':
+             mean_roms  = np.average(temp_roms2,axis=0) 
+             mean_mur   = np.average(temp_mur2,axis=0)
+             val        = mean_roms-mean_mur   
+        if choose_data =='2':
+             mean_roms   = np.average(temp_roms2,axis=0) 
+             mean_glorys = np.average(temp_glorys2,axis=0)
+             val         = mean_roms-mean_glorys
 
     # Create and plot map.
     m    = Basemap(projection='merc',llcrnrlat=bbox[2],urcrnrlat=bbox[3],llcrnrlon=bbox[0],urcrnrlon=bbox[1], lat_ts=10,resolution='i')
@@ -216,27 +228,35 @@ if contourf_var=='1':
     if metric=='1':
         clevs = clevs_rmse_sst
         ticks = ticks_rmse_sst
-        cmap  = matplotlib.pyplot.jet()
+        cmap  = cmocean.cm.thermal
     if metric=='2':
-        clevs = clevs_mae_sst
-        ticks = ticks_mae_sst 
+        clevs = clevs_mape_sst
+        ticks = ticks_mape_sst 
+        cmap  = cmocean.cm.thermal
+    if metric=='3':
+        clevs = clevs_bias_sst
+        ticks = ticks_bias_sst 
         cmap  = cmocean.cm.balance
+
     if choose_data == '1':
-        if metric=='1':
+        if metric=='1' or metric=='2':
             h1    = m.contourf(lon_roms, lat_roms, val, clevs,latlon=True,cmap=cmap,extend="both")
-        if metric=='2':
-            h1    = m.contourf(lon_roms, lat_roms, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both")          
+        if metric=='3':
+            h1    = m.contourf(lon_roms, lat_roms, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both") 
     if choose_data =='2':
         if metric =='1':
             h1    = m.contourf(lon_glorys, lat_glorys, val, clevs,latlon=True,cmap=cmap,extend="both") 
-        if metric =='2':
-            h1    = m.contourf(lon_glorys, lat_glorys, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both")        
+        if metric =='2' or metric =='3':
+            h1    = m.contourf(lon_glorys, lat_glorys, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both")      
+
     cax   = fig.add_axes([0.37, 0.025, 0.27, 0.025])     
     cb    = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
     if metric=='1':
         cb.set_label(r'Sea Surface Temperature Root Mean Square Error [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=0)
     if metric=='2':
-        cb.set_label(r'Sea Surface Temperature Bias [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=-0.5)
+        cb.set_label(r'Sea Surface Temperature Mean Absolute Percentage Error [%]', fontsize=9, color='0.2',labelpad=-0.5)
+    if metric=='3':
+        cb.set_label(r'Sea Surface Temperature Bias [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=-0.5)        
     cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
     cb.set_ticks(ticks)
     try:
@@ -244,13 +264,17 @@ if contourf_var=='1':
     except FileExistsError:
         pass 
     if metric=='1' and choose_data == '1':
-        plt.savefig('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Figuras/Evaluation/sst_rmse_roms_mur.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)          
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sst_rmse_roms_mur.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)          
     if metric=='2' and choose_data =='1':
-        plt.savefig('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Figuras/Evaluation/sst_mae_roms_mur.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sst_mape_roms_mur.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+    if metric=='3' and choose_data =='1':
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sst_bias_roms_mur.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)          
     if metric=='1' and choose_data == '2':
-        plt.savefig('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Figuras/Evaluation/sst_rmse_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)          
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sst_rmse_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)          
     if metric=='2' and choose_data =='2':
-        plt.savefig('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Figuras/Evaluation/sst_mae_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sst_mape_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)
+    if metric=='3' and choose_data =='2':
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sst_bias_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)     
 
 if contourf_var=='2': 
     print(bg.da_cyan+'Evaluate Sea Surface Currents from: (1) OSCAR or (2) GLORYS.'+bg.rs)
@@ -350,7 +374,7 @@ if contourf_var=='2':
     if choose_data == '1':
         cur_roms  = np.sqrt(u_roms2**2 + v_roms2**2)
         cur_oscar = np.sqrt(u_oscar2**2 + v_oscar2**2)
-        print(bg.da_cyan+'Which statistical metric? (1) Root Mean Square Error or (2) Mean Absolute Error.'+bg.rs)
+        print(bg.da_cyan+'Which statistical metric? (1) Root Mean Square Error, (2) Mean Absolute Error or (3) Bias.'+bg.rs)
         metric  = input()
         if metric=='1':
             differences         = cur_roms-cur_oscar
@@ -358,12 +382,16 @@ if contourf_var=='2':
             mean_of_differences_squared = np.average(differences_squared,axis=0)
             val                 = np.sqrt(mean_of_differences_squared)
         if metric=='2':
-            differences = cur_roms-cur_oscar
-            val         = np.average(differences,axis=0)
+            val = np.abs((cur_oscar - cur_roms) / cur_oscar).mean(axis=0)*100 
+        if metric=='3':
+            mean_oscar = np.average(cur_oscar,axis=0) 
+            mean_roms  = np.average(cur_roms,axis=0)
+            val        = mean_roms-mean_oscar
+
     if choose_data == '2':
         cur_roms   = np.sqrt(u_roms2**2 + v_roms2**2)
         cur_glorys = np.sqrt(u_glorys2**2 + v_glorys2**2)
-        print(bg.da_cyan+'Which statistical metric? (1) Root Mean Square Error or (2) Mean Absolute Error.'+bg.rs)
+        print(bg.da_cyan+'Which statistical metric? (1) Root Mean Square Error, (2) Mean Absolute Percentage Error or (3) Bias.'+bg.rs)
         metric  = input()
         if metric=='1':
             differences         = cur_roms-cur_glorys
@@ -371,8 +399,12 @@ if contourf_var=='2':
             mean_of_differences_squared = np.average(differences_squared,axis=0)
             val                 = np.sqrt(mean_of_differences_squared)
         if metric=='2':
-            differences = cur_roms-cur_glorys
-            val         = np.average(differences,axis=0)  
+            val = np.abs((cur_glorys - cur_roms) / cur_glorys).mean(axis=0)*100 
+        if metric=='3':
+            mean_roms   = np.average(cur_roms,axis=0) 
+            mean_glorys = np.average(cur_glorys,axis=0)
+            val         = mean_roms-mean_glorys
+                         
     # Create and plot map.
     m    = Basemap(projection='merc',llcrnrlat=bbox[2],urcrnrlat=bbox[3],llcrnrlon=bbox[0],urcrnrlon=bbox[1], lat_ts=30,resolution='i')
     fig  = plt.figure(1,figsize=(10,8))
@@ -389,25 +421,32 @@ if contourf_var=='2':
         ticks = ticks_rmse_cur
         cmap  =  matplotlib.pyplot.jet()   #cmocean.cm.thermal
     if metric=='2':
-        clevs = clevs_mae_cur
-        ticks = ticks_mae_cur
+        clevs = clevs_mape_cur
+        ticks = ticks_mape_cur
         cmap  = cmocean.cm.balance
+    if metric=='3':
+        clevs = clevs_bias_cur
+        ticks = ticks_bias_cur
+        cmap  = cmocean.cm.balance
+
     if choose_data == '1':
-        if metric == '1':
+        if metric == '1' or metric=='2':
             h1    = m.contourf(lon_oscar, lat_oscar, val, clevs,latlon=True,cmap=cmap,extend="both")
-        if metric == '2':
+        if metric == '3':
             h1    = m.contourf(lon_oscar, lat_oscar, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both")          
     if choose_data =='2':
-        if metric == '1':
+        if metric == '1' or metric=='2':
             h1    = m.contourf(lon_glorys, lat_glorys, val, clevs,latlon=True,cmap=cmap,extend="both")   
-        if metric == '2':
+        if metric == '3':
             h1    = m.contourf(lon_glorys, lat_glorys, val, clevs,latlon=True,cmap=cmap,norm=MidpointNormalize(midpoint=0),extend="both")              
     cax   = fig.add_axes([0.37, 0.025, 0.27, 0.025])     
     cb    = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
     if metric=='1':
         cb.set_label(r'Surface Currents Root Mean Square Error [m.s⁻¹]', fontsize=10, color='0.2',labelpad=-0.5)
     if metric=='2':
-        cb.set_label(r'Current at Surface Bias [m.s⁻¹]', fontsize=10, color='0.2',labelpad=-0.5)
+        cb.set_label(r'Current at Surface Mean Absolute Percentage Error [%]', fontsize=10, color='0.2',labelpad=-0.5)
+    if metric=='3':
+        cb.set_label(r'Current at Surface Bias [m.s⁻¹]', fontsize=10, color='0.2',labelpad=-0.5)      
     cb.ax.tick_params(labelsize=10, length=2, color='0.2', labelcolor='0.2',direction='in') 
     cb.set_ticks(ticks)
     try:
@@ -416,12 +455,17 @@ if contourf_var=='2':
         pass 
     
     if metric=='1' and choose_data == '1':
-        plt.savefig('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Figuras/Evaluation/sscs_rmse_roms_oscar.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sscs_rmse_roms_oscar.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
     if metric=='2' and choose_data == '1':
-        plt.savefig('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Figuras/Evaluation/sscs_mae_roms_oscar.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)      
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sscs_mape_roms_oscar.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)  
+    if metric=='3' and choose_data == '1':
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sscs_bias_roms_oscar.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)             
     if metric=='1' and choose_data == '2':
-        plt.savefig('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Figuras/Evaluation/sscs_rmse_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sscs_rmse_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)              
     if metric=='2' and choose_data == '2':
-        plt.savefig('/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Figuras/Evaluation/sscs_mae_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)    
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sscs_mape_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)    
+    if metric=='3' and choose_data == '2':
+        plt.savefig('/media/ueslei/Ueslei/Scripts/Python/roms_evaluation/sscs_bias_roms_glorys.png', transparent=False, bbox_inches = 'tight', pad_inches=0, dpi=250)    
+
 
 

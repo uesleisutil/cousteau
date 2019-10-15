@@ -47,9 +47,9 @@ import os
 matplotlib.use('Agg')
 
 # Customizations.
-bbox              = [-57,-40,-34,-22.2]
-lonbounds         = [-57,-40] 
-latbounds         = [-34,-22.2]
+bbox                = [-53, -40, -32, -23]
+lonbounds           = [-53,-40] 
+latbounds           = [-32,-23]
 wrf_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_ts.nc'
 wrf_file_cfsr     = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_6h_ncks.nc'
 era_file          = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Dados/Evaluation/ERA5/era5.nc'
@@ -120,7 +120,7 @@ if dataset == '1':
         lon_wrf     = lon_wrf[lonli:lonui]
         lat_wrf     = lat_wrf[latui:latli]
         lon_wrf,lat_wrf = np.meshgrid(lon_wrf,lat_wrf)      
-        wrf_loop    = len(nc_wrf.variables['Times'][:])
+        wrf_loop    = len(nc_wrf.variables['LH'][:,0,0])
         wrf_lat_len = len(lat_wrf[:,0])
         wrf_lon_len = len(lon_wrf[0,:])
         orig_def    = pyresample.geometry.SwathDefinition(lons=lon_wrf, lats=lat_wrf)

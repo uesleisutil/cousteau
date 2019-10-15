@@ -108,7 +108,7 @@ if project =='3':
     contourf_var  = input() 
 
 # 3. Start looping through time
-range_loop = [i for i in range(0,ntimes,1)]
+range_loop = [i for i in range(168,ntimes,1)]
 bar        = IncrementalBar(bg.da_cyan+'Creating figures:'+bg.rs, max=len(range_loop))
 for i in range_loop:
 #for i in range(0,1):
@@ -174,22 +174,19 @@ for i in range_loop:
             rainc    = nc_wrf.variables['RAINC'][i,:,:]                
             var      = rainnc+rainc
             var1     = getvar(nc_wrf, "pw", i)
-            lat_rain, lon_rain = latlon_coords(var1)      
-            clevs    = np.arange(0,300,5)
-            ticks    = np.array([0,50,100,150,200,250,300])  
+            lat_wrf, lon_wrf = latlon_coords(var1)      
+            clevs    = np.arange(0,400,5)
+            ticks    = np.array([0,50,100,150,200,250,300,350,400])  
             cmap     = cmocean.cm.rain    
         if contourf_var=='4': 
-            lon_rho     = nc_roms.variables['lon_rho'][:]
-            lat_rho     = nc_roms.variables['lat_rho'][:]
-            i0,i1,j0,j1 = bbox2ij(lon_rho,lat_rho,bbox)
-            lon_var     = lon_rho[j0:j1, i0:i1]
-            lat_var     = lat_rho[j0:j1, i0:i1]
-            var1        = nc_roms.variables['latent'][i, j0:j1, i0:i1]
-            var2        = nc_roms.variables['sensible'][i, j0:j1, i0:i1]
-            var         = abs(var1+var2) # Change to positive flux (atmos to ocean)
-            clevs       = np.arange(0,600.1,5)
-            ticks       = np.array([0,100,200,300,400,500,600,700,800,900])   
-            cmap        = matplotlib.pyplot.jet()   
+            latent   = nc_wrf.variables['LH'][i,:,:]
+            sensible = nc_wrf.variables['HFX'][i,:,:]                
+            var      = latent+sensible
+            var1     = getvar(nc_wrf, "pw", i)
+            lat_wrf, lon_wrf = latlon_coords(var1)      
+            clevs    = np.arange(0,401,5)
+            ticks    = np.array([0,50,100,150,200,250,300,350,400])  
+            cmap     = cmocean.cm.thermal    
         if contourf_var=='5':
             lon_rho     = nc_roms.variables['lon_rho'][:]
             lat_rho     = nc_roms.variables['lat_rho'][:]
@@ -313,20 +310,21 @@ for i in range_loop:
             cb.ax.tick_params(labelsize=5, length=2, color='0.2', labelcolor='0.2',direction='in') 
             cb.set_ticks(ticks)
         if contourf_var=='3':
-            x1, y1    = m(to_np(lon_rain), to_np(lat_rain))
-            h1  = ax.contourf(x1, y1, to_np(var), clevs,cmap=cmap,latlon=True)  
+            x1, y1 = m(to_np(lon_wrf), to_np(lat_wrf))
+            h1  = ax.contourf(x1, y1, to_np(var), clevs,cmap=cmap,latlon=True,extend="both")  
             cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])     
             cb  = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
-            cb.set_label(r'Accumulated Precipitation[mm]', fontsize=9, color='0.2',labelpad=0)
+            cb.set_label(r'Accumulated Precipitation [mm]', fontsize=9, color='0.2',labelpad=0)
             cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
             cb.set_ticks(ticks)
         if contourf_var=='4':
-            h1  = m.contourf(lon_var, lat_var, var, clevs,latlon=True,cmap=cmap)  
-            cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])   
+            x1, y1 = m(to_np(lon_wrf), to_np(lat_wrf))
+            h1  = ax.contourf(x1, y1, to_np(var), clevs,cmap=cmap,latlon=True,extend="both")  
+            cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])     
             cb  = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks)
-            cb.set_label(r'Heat Fluxes [W m.s⁻²]', fontsize=9, color='0.2',labelpad=-0)
-            cb.ax.tick_params(labelsize=5, length=2, color='0.2', labelcolor='0.2',direction='in') 
-            cb.set_ticks(ticks)
+            cb.set_label(r'Accumulated Precipitation [W m.s⁻²]', fontsize=9, color='0.2',labelpad=0)
+            cb.ax.tick_params(labelsize=9, length=2, color='0.2', labelcolor='0.2',direction='in') 
+            cb.set_ticks(ticks)            
         if contourf_var=='5':
             h1  = m.contourf(lon_var, lat_var, var, clevs,latlon=True,cmap=cmap,extend="both")  
             cax = fig.add_axes([0.37, 0.01, 0.27, 0.025])   
