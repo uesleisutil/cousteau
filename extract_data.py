@@ -32,7 +32,7 @@ lon      = -49.355
 inittime = 0
 
 # Insert WRF file directory.
-wrf_dir    = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf.nc'
+wrf_dir    = '/media/ueslei/Ueslei/INPE/PCI/Projetos/SC_2008/Outputs/normal/wrf_ts.nc'
 nc_file    = netCDF4.Dataset(wrf_dir)
 
 # Create a variable in order to use the IncrementalBar.

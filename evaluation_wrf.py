@@ -68,11 +68,11 @@ ticks_mape_wind = np.arange(min(clevs_mape_wind),max(clevs_mape_wind),20)
 clevs_bias_wind = np.arange(-2,9.1,0.1)
 ticks_bias_wind = np.arange(min(clevs_bias_wind),max(clevs_bias_wind),1)
 
-clevs_rmse_slp  = np.arange(0,1.71,0.01)
-ticks_rmse_slp  = np.arange(min(clevs_rmse_slp),max(clevs_rmse_slp),0.7)
-clevs_mape_slp  = np.arange(0,14.02,0.01)
-ticks_mape_slp  = np.arange(min(clevs_mape_slp),max(clevs_mape_slp),1)
-clevs_bias_slp  = np.arange(-10,4.1,0.01)
+clevs_rmse_slp  = np.arange(0,2.05,0.01)
+ticks_rmse_slp  = np.arange(min(clevs_rmse_slp),max(clevs_rmse_slp),0.5)
+clevs_mape_slp  = np.arange(0,0.205,0.001)
+ticks_mape_slp  = np.arange(min(clevs_mape_slp),max(clevs_mape_slp),0.05)
+clevs_bias_slp  = np.arange(-2,2.01,0.01)
 ticks_bias_slp  = np.arange(min(clevs_bias_slp),max(clevs_bias_slp),1)
 
 print('Which data? (1) ERA5 or (2) CFSR?')      
@@ -445,23 +445,20 @@ if dataset =='2':
 cax   = fig.add_axes([0.37, 0.025, 0.27, 0.025])     
 cb    = fig.colorbar(h1, cax=cax, orientation="horizontal",panchor=(0.5,0.5),shrink=0.3,ticks=ticks,pad=-10.5)
 
-
 if metric=='1':
     if contourf_var=='1':
         cb.set_label(r'Air Temperature at 2 meters Root Mean Square Error [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=0)
     if contourf_var=='2':
         cb.set_label(r'Wind Speed at 10 meters Root Mean Square Error [m.s⁻¹]', fontsize=9, color='0.2',labelpad=0)
     if contourf_var=='3':
-         cb.set_label(r'Sea Level Pressure Root Mean Square Error [hPa]', fontsize=9, color='0.2',labelpad=0) 
-            
+         cb.set_label(r'Sea Level Pressure Root Mean Square Error [hPa]', fontsize=9, color='0.2',labelpad=0)       
 if metric=='2':
     if contourf_var=='1':
         cb.set_label(r'Air Temperature at 2 meters Mean Absolute Percentage Error [%]', fontsize=9, color='0.2',labelpad=-0.2)
     if contourf_var=='2':
         cb.set_label(r'Wind Speed at 10 meters Mean Absolute Percentage Error [%]', fontsize=9, color='0.2',labelpad=-0.2)
     if contourf_var=='3':
-        cb.set_label(r'Sea Level Pressure Mean Absolute Percentage Error [%]', fontsize=9, color='0.2',labelpad=-0.2)  
-          
+        cb.set_label(r'Sea Level Pressure Mean Absolute Percentage Error [%]', fontsize=9, color='0.2',labelpad=-0.2)     
 if metric=='3':
     if contourf_var=='1':
         cb.set_label(r'Air Temperature at 2 meters Bias [$^\circ\!$C]', fontsize=9, color='0.2',labelpad=-0.2)

@@ -186,7 +186,7 @@ if contourf_var=='1':
             bar.next()
         bar.finish()
 
-    print(bg.da_cyan+'Which statistical metric? (1) Root Mean Square Error, (2) Mean Absolute Error or (3) Bias.'+bg.rs)
+    print(bg.da_cyan+'Which statistical metric? (1) Root Mean Square Error, (2) Mean Absolute Percentage Error or (3) Bias.'+bg.rs)
     metric  = input()
     if metric=='1':
         if choose_data == '1':
@@ -201,7 +201,7 @@ if contourf_var=='1':
             val                 = np.sqrt(mean_of_differences_squared)
     if metric=='2':
         if choose_data =='1':
-            val = np.abs((temp_mur2-temp_roms2)/temp_mur).mean(axis=0)*100
+            val = np.abs((temp_mur2-temp_roms2)/temp_mur2).mean(axis=0)*100
         if choose_data =='2':
             val = np.abs((temp_glorys2 - temp_roms2) / temp_glorys2).mean(axis=0)*100 
     if metric=='3':
