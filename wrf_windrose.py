@@ -7,7 +7,7 @@ Last modified:  24 October 2019
 Version:        1.0
 Python:         3.7.1
 
-Give one latitude/longitude point, extract all WRF-ARW wind speed and direction at 
+Given one latitude/longitude point, extract all WRF-ARW wind speed and direction at 
 10 meters height rotated to Earth coordinates as .txt file, then plot its wind rose
 plot
 """
